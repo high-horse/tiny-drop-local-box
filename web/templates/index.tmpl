@@ -1,0 +1,9 @@
+{{ define "content" }}
+<h2>{{ .Title }}</h2>
+
+<ul>
+    {{ range .Files }}
+        <li>{{ . }}</li>
+    {{ end }}
+</ul>
+{{ end }}

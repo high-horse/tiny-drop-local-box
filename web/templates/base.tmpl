@@ -1,0 +1,14 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .Title }}</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+
+    {{ template "content" . }}
+
+</body>
+</html>
+{{ end }}

@@ -101,13 +101,20 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserIp(r *http.Request) string {
-	ip := r.RemoteAddr
-	host, _, err := net.SplitHostPort(ip)
-	if err != nil {
-		log.Printf("Error Parsing IP address : %v", err)
-		return ""
+	ip := r.Header.Get("X-Forwarded-For")
+	var err error
+	if ip == "" {
+		ip = r.Header.Get("X-Real-IP")
+	} 
+	if ip == "" {
+		ip, _, err = net.SplitHostPort(ip)
+		if err != nil {
+			log.Printf("Error Parsing IP address : %v", err)
+			return ""
+		}
 	}
-	return host
+
+	return ip
 }
 
 

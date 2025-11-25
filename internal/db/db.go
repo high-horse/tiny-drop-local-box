@@ -21,12 +21,12 @@ func InitDb(dataSourceName string){
 		var err error
 		db, err = sql.Open("sqlite3", dataSourceName)
 		if err != nil {
-			log.Fatal("Failed to initialize database: %v ", err)
+			log.Fatalf("failed to initialize database: %v ", err)
 		}
 
 		err = db.Ping()
 		if err != nil {
-			log.Fatal("Failed to connect to database : %v", err)
+			log.Fatalf("failed to connect to database : %v", err)
 		}
 
 		fmt.Println("Database connection extablished successfully.")
@@ -56,6 +56,6 @@ func CreateTable() {
 	`
 	_, err := db.Exec(createTableSql)
 	if err != nil {
-		log.Fatal("Failed to create Table: %v", err)
+		log.Fatalf("Failed to create Table: %v", err)
 	}
 }
