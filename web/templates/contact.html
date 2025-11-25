@@ -1,10 +1,9 @@
-{{ define "title" }}Contact Us{{ end }}
+<!-- web/templates/contact.html -->
+{{ template "base" . }}
+
+{{ define "title" }}{{ .Title }}{{ end }}
 
 {{ define "content" }}
 <h2>Contact</h2>
-<p>Email: example@example.com</p>
-{{ end }}
-
-{{ define "contact" }}
-  {{ template "base" . }}
+<p>Email: <strong>{{ .Email }}</strong></p>
 {{ end }}

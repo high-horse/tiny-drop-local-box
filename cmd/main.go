@@ -1,47 +1,35 @@
 package main
 
 import (
-	"html/template"
+	// "html/template"
 	"log"
 	"net/http"
+	"tiny-drop/internal/views"
+	"tiny-drop/internal/routes"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-var templates *template.Template
 
 func main() {
-	templates = template.Must(template.ParseGlob("web/templates/*.html"))
-	log.Printf("Parsed templates: %v", templates.DefinedTemplates())
 
+	render, err := views.New("web/templates")
+	if err != nil {
+		log.Fatalf("Error parsing templates: %v", err)
+	}
+	port := ":9090"
+	log.Printf("Templates loaded.")
+		
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	routes.ApiRoutes(r, render)
+	
+	
+	log.Println("Server running at http://localhost", port)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "home", nil)
-	})
-
-	r.Get("/about", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "about", nil)
-	})
-
-	r.Get("/contact", func(w http.ResponseWriter, r *http.Request) {
-		render(w, "contact", nil)
-	})
-
-	log.Println("Server running at http://localhost:9090")
-
-	// THIS IS THE MOST IMPORTANT LINE
-	err := http.ListenAndServe(":9090", r)
+	err = http.ListenAndServe(port, r)
 	if err != nil {
 		log.Fatal(err)
-	}
-}
-
-func render(w http.ResponseWriter, page string, data interface{}) {
-	err := templates.ExecuteTemplate(w, page, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
