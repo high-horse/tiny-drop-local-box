@@ -1,0 +1,60 @@
+apackage main
+
+import (
+	"log"
+	"net/http"
+	"tiny-drop/internal/routes"
+	// "tiny-drop/internal/templates"
+	"html/template"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+)
+
+
+var templates *template.Template
+
+func main() {
+	// Load ALL templates once at startup
+	templates = template.Must(template.ParseGlob("templates/*.html"))
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		render(w, "home.html", nil)
+	})
+
+	http.HandleFunc("/about", func(w http.ResponseWriter, r *http.Request) {
+		render(w, "about.html", nil)
+	})
+
+	http.HandleFunc("/contact", func(w http.ResponseWriter, r *http.Request) {
+		render(w, "contact.html", nil)
+	})
+
+	log.Println("Server running at http://localhost:8080")
+	http.ListenAndServe(":8080", nil)
+}
+
+func render(w http.ResponseWriter, page string, data interface{}) {
+	// ExecuteTemplate merges page + layout automatically
+	err := templates.ExecuteTemplate(w, page, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func _main_() {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	
+	fileServer := http.FileServer(http.Dir("./web/static"))
+	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
+	
+	renderer := templates.NewRenderer("./web/templates", true)
+	
+	
+	routes.ApiRoutes(r, renderer)
+	
+	port := ":3000"
+	log.Println("Listening on ", port)
+	http.ListenAndServe(port, r)
+}

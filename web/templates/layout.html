@@ -1,0 +1,27 @@
+<!-- web/templates/layout.html -->
+{{ define "base" }}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ template "title" . }}</title>
+</head>
+<body>
+    <header>
+        <h1>My Go Website</h1>
+        <nav>
+            <a href="/">Home</a> |
+            <a href="/about">About</a> |
+            <a href="/contact">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        {{ template "content" . }}
+    </main>
+
+    <footer>
+        <p>Footer © 2025</p>
+    </footer>
+</body>
+</html>
+{{ end }}
