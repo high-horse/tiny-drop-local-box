@@ -19,16 +19,16 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	ip := query.Get("name")
 	log.Println("Connected from ", ip)
-	
+
 	data := struct {
 		Title string
-		Desc string
+		Desc  string
 	}{
 		Title: "sss  Home Page",
-		Desc: "some description",
+		Desc:  "some description",
 	}
 
-	views.Render(w, "new_layout.html", "home_body.html", data)
+	views.Render(w, "layout.html", "home.html", data)
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,21 +40,19 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 		Email: "example@example.com",
 	}
 
-	views.Render(w, "new_layout.html", "contact_body.html", data)
+	views.Render(w, "layout.html", "contact.html", data)
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Title string
-		Desc string
+		Desc  string
 		About string
 	}{
 		Title: "About Us",
-		Desc: "about description",
+		Desc:  "about description",
 		About: "more about about",
 	}
 
-	views.Render(w, "new_layout.html", "about_body.html", data)
+	views.Render(w, "layout.html", "about.html", data)
 }
-
-

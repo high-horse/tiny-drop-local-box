@@ -1,10 +1,15 @@
-<!-- web/templates/layout.html -->
-{{ define "base" }}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{{ block "title" . }}Default Title{{ end }}</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <title>{{ .Title }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        header { border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+        nav a { margin: 0 0.5rem; text-decoration: none; color: #0066cc; }
+        nav a:hover { text-decoration: underline; }
+        footer { margin-top: 2rem; color: #777; font-size: 0.9em; }
+    </style>
 </head>
 <body>
     <header>
@@ -17,12 +22,11 @@
     </header>
 
     <main>
-        {{ block "content" . }}Default Content{{ end }}
+        {{ template "body" . }}
     </main>
 
     <footer>
-        <p>Footer © 2025</p>
+        <p>&copy; 2025 My Go Website</p>
     </footer>
 </body>
 </html>
-{{ end }}
