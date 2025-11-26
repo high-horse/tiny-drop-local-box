@@ -4,29 +4,25 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"log"
 )
 
-type Renderer struct {
-	templates *template.Template
-}
 
-var GlobalRenderer Renderer
+func Render(w http.ResponseWriter, layoutName, bodyName string, data interface{}) {
+	layoutPath := filepath.Join("web", "templates", layoutName)
+	bodyPath := filepath.Join("web", "templates", bodyName)
 
-func New(dir string) (*Renderer, error) {
-	tmpl, err := template.ParseGlob(filepath.Join(dir, "*.html"))
-	if err != nil {
-		return nil, err
-	}
+	// Parse layout and body
+	layoutTmpl := template.Must(template.ParseFiles(layoutPath))
+	bodyTmpl := template.Must(template.ParseFiles(bodyPath))
 
-	GlobalRenderer = Renderer{
-		templates: tmpl,
-	}
-	return &GlobalRenderer, nil
-}
+	// Clone layout and inject body
+	tmpl := template.Must(layoutTmpl.Clone())
+	tmpl = template.Must(tmpl.AddParseTree("body", bodyTmpl.Tree))
 
-func (r *Renderer) Render(w http.ResponseWriter, name string, data any) {
-	err := r.templates.ExecuteTemplate(w, name, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// Execute layout template
+	if err := tmpl.ExecuteTemplate(w, layoutName, data); err != nil {
+		log.Printf("Template error: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
