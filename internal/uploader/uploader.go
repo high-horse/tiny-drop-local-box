@@ -3,17 +3,17 @@ package uploader
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 	"tiny-drop/internal/db"
-	"github.com/google/uuid" 
-	"strings"
 )
 
 type FileMetadata struct {
@@ -32,7 +32,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error parsing the file", http.StatusBadRequest)
 		return
 	}
-
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
@@ -105,7 +104,7 @@ func GetUserIp(r *http.Request) string {
 	var err error
 	if ip == "" {
 		ip = r.Header.Get("X-Real-IP")
-	} 
+	}
 	if ip == "" {
 		ip, _, err = net.SplitHostPort(ip)
 		if err != nil {
@@ -117,18 +116,16 @@ func GetUserIp(r *http.Request) string {
 	return ip
 }
 
-
 // Get the user IP address from the request (considering proxy headers)
 func getUserIP(r *http.Request) string {
 
 	/*
-	NGINX 
-	proxy_set_header X-Forwarded-For $remote_addr;
-	proxy_set_header X-Real-IP $remote_addr;
-	proxy_set_header Host $host;
-	proxy_pass http://your_go_app_backend;
+		NGINX
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header Host $host;
+		proxy_pass http://your_go_app_backend;
 	*/
-
 
 	// Check if the request has the X-Forwarded-For header
 	// The X-Forwarded-For header contains a comma-separated list of IPs
@@ -149,7 +146,6 @@ func getUserIP(r *http.Request) string {
 	}
 	return host
 }
-
 
 func CheckDiskSpace(fileSize int64) bool {
 	statfs := syscall.Statfs_t{}
@@ -175,8 +171,11 @@ func CheckDiskSpace(fileSize int64) bool {
 func SaveFileToDB(ip, fileUUID, filename, filepath string, filesize int64, metadataJSON []byte) error {
 	db := db.GetDB()
 
-	insertSQL := `INSERT INTO uploads (ip, file_uuid, filename, file_path, filesize, uploaded_at, metadata) 
-				  VALUES (?, ?, ?, ?, ?, ?, ?)`
+	insertSQL := `
+		INSERT INTO uploads 
+		(ip, file_uuid, filename, file_path, filesize, uploaded_at, metadata) 
+		VALUES (?, ?, ?, ?, ?, ?, ?)
+	`
 	_, err := db.Exec(insertSQL, ip, fileUUID, filename, filepath, filesize, time.Now(), metadataJSON)
 	if err != nil {
 		return fmt.Errorf("failed to insert file into database: %v", err)
@@ -200,61 +199,4 @@ func SaveFileToDB_(ip, filename, filepath string, filesize int64, metadataJSON [
 		return fmt.Errorf("failed to insert file to database : %v", err)
 	}
 	return nil
-}
-
-func StartCleanupTicker() {
-	ticker := time.NewTicker(10 * time.Minute)
-	defer ticker.Stop()
-
-	go func() {
-		for range ticker.C {
-			CleanupFiles()
-		}
-	}()
-}
-
-// Cleanup old files (files older than 1 hour)
-func CleanupFiles() {
-	db := db.GetDB()
-
-	// Fetch records of files older than 1 hour
-	rows, err := db.Query(`SELECT file_path FROM uploads WHERE uploaded_at < ?`, time.Now().Add(-time.Hour))
-	if err != nil {
-		log.Printf("Error fetching old files for cleanup: %v", err)
-		return
-	}
-	defer rows.Close()
-
-	var filePath string
-	var filePathsToDelete []string
-
-	// Collect file paths to delete
-	for rows.Next() {
-		err := rows.Scan(&filePath)
-		if err != nil {
-			log.Printf("Error scanning file path: %v", err)
-			continue
-		}
-		filePathsToDelete = append(filePathsToDelete, filePath)
-	}
-
-	// Delete files from the filesystem first
-	for _, path := range filePathsToDelete {
-		err := os.Remove(path)
-		if err != nil {
-			log.Printf("Error deleting file %s from filesystem: %v", path, err)
-			continue
-		}
-		log.Printf("Successfully deleted file %s from filesystem.", path)
-	}
-
-	// After deleting from the filesystem, delete records from the database
-	for _, path := range filePathsToDelete {
-		_, err := db.Exec(`DELETE FROM uploads WHERE file_path = ?`, path)
-		if err != nil {
-			log.Printf("Error deleting file %s record from database: %v", path, err)
-			continue
-		}
-		log.Printf("Successfully deleted file %s record from database.", path)
-	}
 }

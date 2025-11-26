@@ -1,4 +1,255 @@
-<h2>Contact</h2>
-<b>Title = {{.Title}}</b>
-<p>Desc: <strong>{{ .Desc }}</strong></p>
-<!-- your paragraphs -->
+{{/* home.html */}}
+<div class="section">
+    <!-- Existing content -->
+    <h2>Contact</h2>
+    <b>Title = {{.Title}}</b>
+    <p>Desc: <strong>{{ .Desc }}</strong></p>
+
+    <h2 class="title is-3">Welcome!</h2>
+    <p class="subtitle is-5">
+        This is the home page served with Bulma styling.
+    </p>
+
+    <!-- Upload button triggers modal -->
+    <button class="button is-primary" id="uploadBtn">Upload File</button>
+
+    <!-- Bulma modal for file upload -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Upload your file</p>
+                <button
+                    class="delete"
+                    aria-label="close"
+                    id="closeModal"
+                ></button>
+            </header>
+            <section class="modal-card-body">
+                <form
+                    id="uploadForm"
+                    method="post"
+                    enctype="multipart/form-data"
+                    action="/upload"
+                >
+                    <div
+                        class="file has-name is-boxed is-fullwidth"
+                        id="dropZone"
+                    >
+                        <label class="file-label">
+                            <input
+                                class="file-input"
+                                type="file"
+                                name="uploadfile"
+                                id="fileInput"
+                                required
+                            />
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span class="file-label"
+                                    >Choose a file… or drag it here</span
+                                >
+                            </span>
+                            <span class="file-name" id="fileName"
+                                >No file selected</span
+                            >
+                        </label>
+                    </div>
+                    <br />
+                    <button
+                        type="submit"
+                        class="button is-success is-fullwidth"
+                    >
+                        Upload
+                    </button>
+                </form>
+                <progress
+                    id="uploadProgress"
+                    class="progress is-primary"
+                    value="0"
+                    max="100"
+                    style="width: 100%; margin-top: 10px"
+                ></progress>
+            </section>
+        </div>
+    </div>
+</div>
+
+<!-- Modal and drag-and-drop script -->
+<script>
+    $(document).ready(function () {
+        const $uploadBtn = $("#uploadBtn");
+        const $uploadModal = $("#uploadModal");
+        const $closeModal = $("#closeModal");
+        const $fileInput = $("#fileInput");
+        const $fileName = $("#fileName");
+        const $dropZone = $("#dropZone");
+        const $uploadForm = $("#uploadForm");
+
+        // Open modal
+        $uploadBtn.click(() => {
+            $uploadModal.addClass("is-active");
+        });
+
+        // Close modal
+        $closeModal.click(() => {
+            $uploadModal.removeClass("is-active");
+            resetFileInput();
+        });
+        $uploadModal.find(".modal-background").click(() => {
+            $uploadModal.removeClass("is-active");
+            resetFileInput();
+        });
+
+        // File input change update file name
+        $fileInput.on("change", () => {
+            if ($fileInput[0].files.length > 0) {
+                $fileName.text($fileInput[0].files[0].name);
+            } else {
+                $fileName.text("No file selected");
+            }
+        });
+
+        // Drag & Drop handlers (same as before, using jQuery event handlers)
+        $dropZone.on("dragenter dragover dragleave drop", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        $dropZone.on("dragover", function () {
+            $dropZone.addClass("is-hovered");
+        });
+
+        $dropZone.on("dragleave drop", function () {
+            $dropZone.removeClass("is-hovered");
+        });
+
+        $dropZone.on("drop", function (e) {
+            const files = e.originalEvent.dataTransfer.files;
+            if (files.length > 0) {
+                $fileInput[0].files = files;
+                $fileName.text(files[0].name);
+            }
+        });
+
+        function showToast(message, type = "is-success") {
+            const toast = $(`
+                <div class="notification ${type}" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+                    ${message}
+                    <button class="delete"></button>
+                </div>
+            `);
+            $("body").append(toast);
+            toast.find(".delete").on("click", () => toast.remove());
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        $("#uploadForm").on("submit", function (e) {
+            e.preventDefault();
+
+            const file = $("#fileInput")[0].files[0];
+            if (!file) return alert("No file selected");
+
+            const chunkSize = 10 * 1024 * 1024; // 2MB per chunk
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            let currentChunk = 0;
+            const maxRetries = 3;
+            let retryCount = 0;
+
+            const progressBar = $("#uploadProgress");
+            const uploadButton = $(this).find('button[type="submit"]');
+            const uploadId = generateUUID();
+            
+            progressBar.val(0); // reset
+            uploadButton.prop('disabled', true); 
+   
+            function uploadNextChunk() {
+                const start = currentChunk * chunkSize;
+                const end = Math.min(file.size, start + chunkSize);
+                const blob = file.slice(start, end);
+
+                const formData = new FormData();
+                formData.append('uploadId', uploadId);
+                formData.append("file", blob);
+                formData.append("fileName", file.name);
+                formData.append("chunkIndex", currentChunk);
+                formData.append("totalChunks", totalChunks);
+
+                $.ajax({
+                    url: "/upload",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        retryCount = 0;
+                        currentChunk++;
+                        const progress = Math.round(
+                            (currentChunk / totalChunks) * 100,
+                        );
+                        progressBar.val(progress);
+
+                        if (currentChunk < totalChunks) {
+                            uploadNextChunk();
+                        } else {
+                            showToast(
+                                "File uploaded successfully!",
+                                "is-success",
+                            );
+                            $("#uploadModal").removeClass("is-active");
+                            $("#fileInput").val("");
+                            $("#fileName").text("No file selected");
+                            progressBar.val(0);
+                            uploadButton.prop('disabled', false); 
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        if (retryCount < maxRetries) {
+                            retryCount++;
+                            console.log(
+                                `Retrying chunk ${currentChunk}, attempt ${retryCount}`,
+                            );
+                            setTimeout(uploadNextChunk, 1000);
+                        } else {
+                            showToast(
+                                "Upload failed after retries: " + error,
+                                "is-danger",
+                            );
+                            uploadButton.prop('disabled', false); 
+                        }
+                    },
+                });
+            }
+
+            uploadNextChunk();
+        });
+
+        function resetFileInput() {
+            $fileInput.val("");
+            $fileName.text("No file selected");
+        }
+        
+        function generateUUID() {
+            // Simple UUIDv4 generator
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+    });
+    
+</script>
+
+<style>
+    /* Drag & drop highlight style */
+    .file.is-hovered {
+        border-color: #79a8ff;
+        background-color: #2a2d34;
+        box-shadow: 0 0 10px #79a8ff;
+        transition: all 0.3s ease;
+    }
+</style>

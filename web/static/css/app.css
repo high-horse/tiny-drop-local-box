@@ -1,0 +1,32 @@
+:root {
+    --bulma-text: #e2e2e2;
+    --bulma-body-background-color: #1a1c21;      /* soft dark */
+    --bulma-link: #79a8ff;
+
+    --bulma-navbar-background-color: #20232a;    /* dark grey */
+    --bulma-navbar-item-color: #e2e2e2;
+
+    --bulma-footer-background-color: #20232a;    /* same as navbar */
+    --bulma-footer-color: #b5b5b5;
+}
+
+
+/* Make footer stick to bottom */
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Slim footer */
+footer {
+    padding: 0 !important;
+}

@@ -30,6 +30,7 @@ func InitDb(dataSourceName string){
 		}
 
 		fmt.Println("Database connection extablished successfully.")
+		CreateTable()
 	})
 }
 
@@ -46,10 +47,11 @@ func CreateTable() {
 	createTableSql := `
 	CREATE TABLE IF NOT EXISTS uploads (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		uuid TEXT,
-		filename TEXT NOT NULL,
-		filepath TEXT NOT NULL,
-		filesize INTEGER NOT NULL,
+		ip TEXT,
+		file_uuid TEXT,
+		file_name TEXT NOT NULL,
+		file_path TEXT NOT NULL,
+		file_size INTEGER NOT NULL,
 		uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		metadata TEXT
 	);
