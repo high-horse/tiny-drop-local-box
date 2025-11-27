@@ -48,6 +48,7 @@ func CreateTable() {
 	CREATE TABLE IF NOT EXISTS uploads (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		ip TEXT,
+		uploader_id TEXT,
 		file_uuid TEXT,
 		file_name TEXT NOT NULL,
 		file_path TEXT NOT NULL,

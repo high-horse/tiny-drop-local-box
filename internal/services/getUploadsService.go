@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 	"tiny-drop/internal/config"
 	"tiny-drop/internal/db"
 	"tiny-drop/internal/types"
@@ -15,7 +16,7 @@ func FetchUploadeds(ip string) ([]types.UploadFile, error) {
 	table := config.UploadsTable
 
 	query := fmt.Sprintf(`
-		SELECT id, ip, file_uuid, file_name, file_path, file_size, uploaded_at, last_download_at, metadata
+		SELECT id, ip, file_uuid, file_name, file_path, file_size, uploaded_at, last_download_at, metadata, uploader_id
 		FROM %s
 		WHERE ip = ?`, table,
 	)
@@ -43,6 +44,7 @@ func FetchUploadeds(ip string) ([]types.UploadFile, error) {
 			&uf.UploadedAt,
 			&uf.LastDownloadAt,
 			&metadataJSON,
+			&uf.UploaderId,
 		)
 		if err != nil {
 			log.Printf("Failed to scan row: %v", err)
@@ -50,6 +52,7 @@ func FetchUploadeds(ip string) ([]types.UploadFile, error) {
 		}
 
 		uf.FileSize = fmt.Sprintf("%d", fileSize)
+		uf.WillDeleteAt = uf.LastDownloadAt.Add(1 * time.Hour)
 
 		// Unmarshal metadata JSON
 		var metadata types.FileMetadata

@@ -49,6 +49,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	chunkIndexStr := r.FormValue("chunkIndex")
 	totalChunkStr := r.FormValue("totalChunks")
 	totalSizeStr := r.FormValue("totalSize")
+	uploaderId := r.FormValue("uploaderId")
 
 	chunkIndex, err := strconv.Atoi(chunkIndexStr)
 	if err != nil {
@@ -172,7 +173,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Failed to marshal file metadata: %v", err)
 			metadataJSON = []byte("{}") // fallback empty JSON
 		}
-		SaveFileToDB(ip, uploadId, fileName, finalPath, fileSize, metadataJSON)
+		SaveFileToDB(ip, uploadId, fileName, finalPath, fileSize, metadataJSON, uploaderId)
 	}
 
 	utils.SendSuccess(w, http.StatusOK, "Saved successfully", nil)
@@ -180,16 +181,16 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	// w.Write([]byte("Chunk uploaded successfully"))
 }
 
-func SaveFileToDB(ip, fileUUID, filename, filepath string, filesize int64, metadataJSON []byte) error {
+func SaveFileToDB(ip, fileUUID, filename, filepath string, filesize int64, metadataJSON []byte, uploaderId string) error {
 	db := db.GetDB()
 	log.Println("Insertint to database ", ip, fileUUID, filename, filesize, metadataJSON)
 
 	insertSQL := `
 		INSERT INTO uploads 
-		(ip, file_uuid, file_name, file_path, file_size, metadata, uploaded_at, last_download_at) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		(ip, file_uuid, file_name, file_path, file_size, metadata, uploaded_at, last_download_at, uploader_id) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	_, err := db.Exec(insertSQL, ip, fileUUID, filename, filepath, filesize, metadataJSON, time.Now(), time.Now())
+	_, err := db.Exec(insertSQL, ip, fileUUID, filename, filepath, filesize, metadataJSON, time.Now(), time.Now(), uploaderId)
 	if err != nil {
 		return fmt.Errorf("failed to insert file into database: %v", err)
 	}

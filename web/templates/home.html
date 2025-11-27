@@ -51,7 +51,7 @@
             {{if .Data}}
             {{range .Data}}
             <div class="column is-3">
-                <div class="card">
+                <div class="card" data-uploader="{{.UploaderId}}" data-uuid="{{.FileUUID}}">
                     <div class="card-content">
                         <p class="title is-6">{{.Metadata.FileName}}</p>
                         <p class="subtitle is-7">
@@ -67,7 +67,7 @@
                                 <span class="icon">
                                     <i class="fas fa-upload"></i>
                                 </span>
-                                <span>{{.UploadedAt.Format "2006-01-02 15:04:05"}}</span>
+                                <span>Uploaded At : <strong>{{.UploadedAt.Format "2006-01-02 15:04:05"}}</strong></span>
                             </span>
                         </p>
                         <p class="subtitle is-7">
@@ -75,7 +75,15 @@
                                 <span class="icon">
                                     <i class="fas fa-download"></i>
                                 </span>
-                                <span>{{.LastDownloadAt.Format "2006-01-02 15:04:05"}}</span>
+                                <span>Last Download at: <strong>{{.LastDownloadAt.Format "2006-01-02 15:04:05"}}</strong></span>
+                            </span>
+                        </p>
+                        <p class="subtitle is-7">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fas fa-download"></i>
+                                </span>
+                                <span>Delete at: <strong>{{.WillDeleteAt.Format "2006-01-02 15:04:05"}}</strong></span>
                             </span>
                         </p>
                     </div>
@@ -83,6 +91,7 @@
                         <a href="/download/{{.FileUUID}}" class="card-footer-item">
                             <span class="icon"><i class="fas fa-arrow-circle-down"></i></span> Download
                         </a>
+                        <span class="card-footer-item delete-container"></span>
                     </footer>
                 </div>
             </div>
@@ -103,6 +112,8 @@
 <!-- Modal and drag-and-drop script -->
 <script>
     $(document).ready(function () {
+        const currentUser = getFingerPrint();
+
         const $uploadBtn = $("#uploadBtn");
         const $uploadModal = $("#uploadModal");
         const $closeModal = $("#closeModal");
@@ -204,6 +215,7 @@
                 formData.append("chunkIndex", currentChunk);
                 formData.append("totalChunks", totalChunks);
                 formData.append("totalSize", totalChunks);
+                formData.append("uploaderId", currentUser);
 
 
                 $.ajax({
@@ -275,6 +287,50 @@
                 return v.toString(16);
             });
         }
+
+
+        function getFingerPrint() {
+            let userUuid = localStorage.getItem("user_uuid");
+            if(!userUuid) {
+                userUuid = generateUUID();
+                localStorage.setItem("user_uuid", userUuid);
+            }
+            
+            return userUuid;
+        }
+
+        $(".card").each(function () {
+        const uploaderId = $(this).data("uploader");
+        const fileUuid = $(this).data("uuid");
+
+        if (uploaderId === currentUser) {
+            const deleteBtn = $(`
+                <a class="card-footer-item has-text-danger delete-file" data-uuid="${fileUuid}">
+                    <span class="icon"><i class="fas fa-trash"></i></span> Delete
+                </a>
+            `);
+
+            $(this).find(".delete-container").append(deleteBtn);
+        }
+    });
+
+    // Handle delete click
+    $(document).on("click", ".delete-file", function () {
+        const uuid = $(this).data("uuid");
+        if (!confirm("Are you sure you want to delete this file?")) return;
+
+        $.ajax({
+            url: "/delete/" + uuid,
+            type: "DELETE",
+            success: function () {
+                showToast("File deleted!", "is-danger");
+                location.reload();
+            },
+            error: function () {
+                showToast("Failed to delete!", "is-warning");
+            }
+        });
+    });
 
     });
 

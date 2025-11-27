@@ -22,4 +22,6 @@ type UploadFile struct {
 	UploadedAt     time.Time    `json:"uploaded_at"`
 	LastDownloadAt time.Time    `json:"last_download_at"`
 	Metadata       FileMetadata `json:"metadata"`
+	UploaderId     string       `json:"uploader_id"`
+	WillDeleteAt   time.Time    `json:"will_delete_at"`
 }
