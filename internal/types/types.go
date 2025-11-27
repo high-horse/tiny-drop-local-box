@@ -13,7 +13,7 @@ type FileMetadata struct {
 }
 
 type UploadFile struct {
-	ID             int          `json:"id"`
+	ID             int          `json:"id,omitempty"`
 	IP             string       `json:"ip"`
 	FileUUID       string       `json:"file_uuid"`
 	FileName       string       `json:"file_name"`

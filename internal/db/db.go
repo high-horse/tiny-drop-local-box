@@ -44,6 +44,11 @@ func GetDB() *sql.DB {
 
 func CreateTable() {
 	db := GetDB()
+
+	if _, err := db.Exec("PRAGMA journal_mode = WAL;"); err != nil {
+		log.Fatalf("Failed to create WAL mode :%v", err)
+	}
+
 	createTableSql := `
 	CREATE TABLE IF NOT EXISTS uploads (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,

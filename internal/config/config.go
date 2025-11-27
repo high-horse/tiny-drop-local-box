@@ -7,7 +7,7 @@ const (
 	TempDir  = "storage/temp"
 	FinalDir = "storage/uploads"
 	DBPath = "storage/files.db"
-	MinFreeSpace uint64 = 10 * 1024 *1024 * 2024 // 10 GIGS
+	MinFreeSpace uint64 = 10 * 1024 *1024 * 1024 // 10 GIGS
 
 	CleanupTime = 10 * time.Minute
 	UploadsTable = "uploads"

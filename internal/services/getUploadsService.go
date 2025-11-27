@@ -51,7 +51,7 @@ func FetchUploadeds(ip string) ([]types.UploadFile, error) {
 			continue
 		}
 
-		uf.FileSize = fmt.Sprintf("%d", fileSize)
+		uf.FileSize = formatFileSize(fileSize)
 		uf.WillDeleteAt = uf.LastDownloadAt.Add(1 * time.Hour)
 
 		// Unmarshal metadata JSON
@@ -70,4 +70,28 @@ func FetchUploadeds(ip string) ([]types.UploadFile, error) {
 	}
 
 	return uploads, nil
+}
+
+
+func formatFileSize(fileSize int64) string {
+	var size float64
+	var unit string
+
+	// Determine the unit and convert the size accordingly
+	if fileSize < 1000 {
+		size = float64(fileSize)
+		unit = "B" // Bytes
+	} else if fileSize < 1000000 {
+		size = float64(fileSize) / 1000
+		unit = "KB" // Kilobytes
+	} else if fileSize < 1000000000 {
+		size = float64(fileSize) / 1000000
+		unit = "MB" // Megabytes
+	} else {
+		size = float64(fileSize) / 1000000000
+		unit = "GB" // Gigabytes
+	}
+
+	// Format the size to 2 decimal places and append the unit
+	return fmt.Sprintf("%.2f %s", size, unit)
 }

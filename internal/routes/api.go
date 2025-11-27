@@ -13,4 +13,8 @@ func ApiRoutes(r chi.Router) {
 	r.Get("/contact", handlers.ContactHandler)
 	
 	r.Post("/upload", handlers.UploadHandler)
+
+	r.Get("/download", handlers.HandleDownloadStream)
+	r.Get("/file-info", handlers.HandleFileInfo)
+
 }
