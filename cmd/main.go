@@ -32,7 +32,7 @@ func main() {
 	
 	log.Printf("Server running at http://localhost%s\n", port)
 
-	go cleaner.CleanupFiles()
+	go cleaner.StartCleanupTicker()
 	go cleaner.CleanupOldChunks()
 	
 	err := http.ListenAndServe(port, r)

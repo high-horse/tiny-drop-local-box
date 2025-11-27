@@ -148,6 +148,7 @@ func getUserIP(r *http.Request) string {
 }
 
 func CheckDiskSpace(fileSize int64) bool {
+	log.Fatal("some fatal ")
 	statfs := syscall.Statfs_t{}
 	err := syscall.Statfs("./storage", &statfs)
 	if err != nil {
@@ -160,7 +161,7 @@ func CheckDiskSpace(fileSize int64) bool {
 
 	// Check if the available space after the upload will be enough
 	if freeSpace < uint64(fileSize) {
-		log.Printf("Not enough disk space! Required: %d bytes, Available: %d bytes", fileSize, freeSpace)
+		log.Printf("Not enough disk space!+++++++++++++ Required: %d bytes, Available: %d bytes", fileSize, freeSpace)
 		return false
 	}
 

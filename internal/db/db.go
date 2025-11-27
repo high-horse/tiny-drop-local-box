@@ -53,6 +53,7 @@ func CreateTable() {
 		file_path TEXT NOT NULL,
 		file_size INTEGER NOT NULL,
 		uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		last_download_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		metadata TEXT
 	);
 	`

@@ -11,11 +11,11 @@ import (
 
 const (
 	tempDir  = config.TempDir
-	finalDir = config.FinalDir
+	// finalDir = config.FinalDir
 )
 
 func CleanupOldChunks() {
-	ticker := time.NewTicker(5 * time.Minute) // run every 5 minutes
+	ticker := time.NewTicker(config.CleanupTime)
 	defer ticker.Stop()
 
 	for {
@@ -48,10 +48,11 @@ func CleanupOldChunks() {
 }
 
 func StartCleanupTicker() {
-	ticker := time.NewTicker(10 * time.Minute)
+	ticker := time.NewTicker(config.CleanupTime)
 	defer ticker.Stop()
 
 	for range ticker.C {
+		log.Println("ticker envoked")
 		CleanupFiles()
 	}
 }
@@ -60,13 +61,14 @@ func StartCleanupTicker() {
 func CleanupFiles() {
 	db := db.GetDB()
 
+	log.Println("cleaning envoked")
 	// Fetch records of files older than 1 hour
 	rows, err := db.Query(`SELECT file_path FROM uploads WHERE uploaded_at < ?`, time.Now().Add(-time.Hour))
 	if err != nil {
 		log.Printf("Error fetching old files for cleanup: %v", err)
 		return
 	}
-	defer rows.Close()
+	defer rows.Close()	
 
 	var filePath string
 	var filePathsToDelete []string

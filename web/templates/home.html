@@ -1,17 +1,15 @@
 {{/* home.html */}}
-<div class="section">
-    <!-- Existing content -->
-    <h2>Contact</h2>
-    <b>Title = {{.Title}}</b>
-    <p>Desc: <strong>{{ .Desc }}</strong></p>
+<div style="padding: 0; margin: 0;">
+  <!-- Upload button triggers modal -->
+   <div style="display: flex; justify-content: space-between;">
 
-    <h2 class="title is-3">Welcome!</h2>
-    <p class="subtitle is-5">
-        This is the home page served with Bulma styling.
-    </p>
-
-    <!-- Upload button triggers modal -->
-    <button class="button is-primary" id="uploadBtn">Upload File</button>
+    <div>
+        <button class="button is-primary" id="uploadBtn">Upload File</button>
+    </div>
+    <div>
+        <span>Your Ip is {{.Ip}}</span>
+    </div>
+    </div>
 
     <!-- Bulma modal for file upload -->
     <div class="modal" id="uploadModal">
@@ -19,63 +17,88 @@
         <div class="modal-card">
             <header class="modal-card-head">
                 <p class="modal-card-title">Upload your file</p>
-                <button
-                    class="delete"
-                    aria-label="close"
-                    id="closeModal"
-                ></button>
+                <button class="delete" aria-label="close" id="closeModal"></button>
             </header>
             <section class="modal-card-body">
-                <form
-                    id="uploadForm"
-                    method="post"
-                    enctype="multipart/form-data"
-                    action="/upload"
-                >
-                    <div
-                        class="file has-name is-boxed is-fullwidth"
-                        id="dropZone"
-                    >
+                <form id="uploadForm" method="post" enctype="multipart/form-data" action="/upload">
+                    <div class="file has-name is-boxed is-fullwidth" id="dropZone">
                         <label class="file-label">
-                            <input
-                                class="file-input"
-                                type="file"
-                                name="uploadfile"
-                                id="fileInput"
-                                required
-                            />
+                            <input class="file-input" type="file" name="uploadfile" id="fileInput" required />
                             <span class="file-cta">
                                 <span class="file-icon">
                                     <i class="fas fa-upload"></i>
                                 </span>
-                                <span class="file-label"
-                                    >Choose a file… or drag it here</span
-                                >
+                                <span class="file-label">Choose a file… or drag it here</span>
                             </span>
-                            <span class="file-name" id="fileName"
-                                >No file selected</span
-                            >
+                            <span class="file-name" id="fileName">No file selected</span>
                         </label>
                     </div>
                     <br />
-                    <button
-                        type="submit"
-                        class="button is-success is-fullwidth"
-                    >
+                    <button type="submit" class="button is-success is-fullwidth">
                         Upload
                     </button>
                 </form>
-                <progress
-                    id="uploadProgress"
-                    class="progress is-primary"
-                    value="0"
-                    max="100"
-                    style="width: 100%; margin-top: 10px"
-                ></progress>
+                <progress id="uploadProgress" class="progress is-primary" value="0" max="100"
+                    style="width: 100%; margin-top: 10px"></progress>
             </section>
         </div>
     </div>
 </div>
+<section class="section">
+    <div class="container">
+        <h1 class="title">Uploaded Files</h1>
+        <div class="columns is-multiline">
+            {{if .Data}}
+            {{range .Data}}
+            <div class="column is-3">
+                <div class="card">
+                    <div class="card-content">
+                        <p class="title is-6">{{.Metadata.FileName}}</p>
+                        <p class="subtitle is-7">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fas fa-file"></i>
+                                </span>
+                                <span>{{.Metadata.FileSize}} bytes</span>
+                            </span>
+                        </p>
+                        <p class="subtitle is-7">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span>{{.UploadedAt.Format "2006-01-02 15:04:05"}}</span>
+                            </span>
+                        </p>
+                        <p class="subtitle is-7">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fas fa-download"></i>
+                                </span>
+                                <span>{{.LastDownloadAt.Format "2006-01-02 15:04:05"}}</span>
+                            </span>
+                        </p>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="/download/{{.FileUUID}}" class="card-footer-item">
+                            <span class="icon"><i class="fas fa-arrow-circle-down"></i></span> Download
+                        </a>
+                    </footer>
+                </div>
+            </div>
+            {{end}}
+            {{else}}
+            <p>No files uploaded yet.</p>
+            {{end}}
+        </div>
+    </div>
+</section>
+
+<!-- <div class="section">
+    <h2>Contact</h2>
+    <b>Title = {{.Title}}</b>
+    <p>Desc: <strong>{{ .Desc }}</strong></p>
+</div> -->
 
 <!-- Modal and drag-and-drop script -->
 <script>
@@ -152,6 +175,10 @@
             const file = $("#fileInput")[0].files[0];
             if (!file) return alert("No file selected");
 
+            console.log("Size in MB:", (file.size / 1_000_000).toFixed(2));
+            // return;
+
+            const totalSize = file.size;
             const chunkSize = 10 * 1024 * 1024; // 2MB per chunk
             const totalChunks = Math.ceil(file.size / chunkSize);
             let currentChunk = 0;
@@ -161,10 +188,10 @@
             const progressBar = $("#uploadProgress");
             const uploadButton = $(this).find('button[type="submit"]');
             const uploadId = generateUUID();
-            
+
             progressBar.val(0); // reset
-            uploadButton.prop('disabled', true); 
-   
+            uploadButton.prop('disabled', true);
+
             function uploadNextChunk() {
                 const start = currentChunk * chunkSize;
                 const end = Math.min(file.size, start + chunkSize);
@@ -176,6 +203,8 @@
                 formData.append("fileName", file.name);
                 formData.append("chunkIndex", currentChunk);
                 formData.append("totalChunks", totalChunks);
+                formData.append("totalSize", totalChunks);
+
 
                 $.ajax({
                     url: "/upload",
@@ -202,10 +231,17 @@
                             $("#fileInput").val("");
                             $("#fileName").text("No file selected");
                             progressBar.val(0);
-                            uploadButton.prop('disabled', false); 
+                            uploadButton.prop('disabled', false);
                         }
                     },
                     error: function (xhr, status, error) {
+                        if (xhr.status == 507) { // check the HTTP status code
+                            showToast(error || "Insuffecient Storage", "is-danger",)
+                            // alert("Upload failed: server storage insufficient (507)");
+                            uploadButton.prop('disabled', false);
+                            progressBar.val(0);
+                            return; // EARLY EXIT, stop retrying
+                        }
                         if (retryCount < maxRetries) {
                             retryCount++;
                             console.log(
@@ -217,7 +253,7 @@
                                 "Upload failed after retries: " + error,
                                 "is-danger",
                             );
-                            uploadButton.prop('disabled', false); 
+                            uploadButton.prop('disabled', false);
                         }
                     },
                 });
@@ -230,10 +266,10 @@
             $fileInput.val("");
             $fileName.text("No file selected");
         }
-        
+
         function generateUUID() {
             // Simple UUIDv4 generator
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 const r = Math.random() * 16 | 0;
                 const v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
@@ -241,7 +277,7 @@
         }
 
     });
-    
+
 </script>
 
 <style>

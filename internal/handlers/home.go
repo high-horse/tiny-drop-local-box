@@ -2,21 +2,33 @@ package handlers
 
 import (
 	"net/http"
+	"tiny-drop/internal/services"
+	"tiny-drop/internal/utils"
 	"tiny-drop/internal/views"
-	"log"
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	ip := query.Get("name")
-	log.Println("Connected from ", ip)
+	if ip == "" {
+		ip = utils.GetUserIp(r)
+	}
 
-	data := struct {
-		Title string
-		Desc  string
-	}{
-		Title: "sss  Home Page",
-		Desc:  "some description",
+	files, err := services.FetchUploadeds(ip)
+	if err != nil {
+		views.Render(w, "layout.html", "home.html", map[string]any {
+			"success" : false,
+			"message" :  "failed to fetch files",
+		})
+		return
+	}
+
+	data := map[string]any {
+		"Title" : "Home Page",
+		"Desc" : "Home Page Description",
+		"Data" : files,
+		"Success": true,
+		"Ip" : ip,
 	}
 
 	views.Render(w, "layout.html", "home.html", data)
