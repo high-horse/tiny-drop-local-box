@@ -40,21 +40,21 @@ func CheckDiskSpace(fileSize uint64) bool {
 
 	// Get the available free space (in bytes)
 	freeSpace := statfs.Bavail * uint64(statfs.Bsize)
-	log.Println("checking free space", freeSpace < uint64(fileSize))
+	log.Println("checking free space", freeSpace < fileSize)
 
 	// Check if the available space after the upload will be enough
-	if freeSpace < uint64(fileSize) {
-		log.Printf("Not enough disk space! Required: %d bytes, Available: %d bytes", fileSize, freeSpace)
-		return false
-	}
-	// remaining := freeSpace - fileSize
-	// if remaining < minFreeSpace {
-    //     log.Printf(
-    //         "Not enough disk space! File requires %d bytes. Available: %d bytes. Needed remaining free: %d bytes, will remain: %d bytes",
-    //         fileSize, freeSpace, minFreeSpace, remaining,
-    //     )
-    //     return false
-    // }
+	// if freeSpace < uint64(fileSize) {
+	// 	log.Printf("Not enough disk space! Required: %d bytes, Available: %d bytes", fileSize, freeSpace)
+	// 	return false
+	// }
 
+	remaining := freeSpace - fileSize
+	if remaining < minFreeSpace {
+        log.Printf(
+            "Not enough disk space! File requires %d bytes. Available: %d bytes. Needed remaining free: %d bytes, will remain: %d bytes",
+            fileSize, freeSpace, minFreeSpace, remaining,
+        )
+        return false
+    }
 	return true
 }

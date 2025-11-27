@@ -183,7 +183,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 func SaveFileToDB(ip, fileUUID, filename, filepath string, filesize int64, metadataJSON []byte, uploaderId string) error {
 	db := db.GetDB()
-	log.Println("Insertint to database ", ip, fileUUID, filename, filesize, metadataJSON)
+	// log.Println("Insertint to database ", ip, fileUUID, filename, filesize, metadataJSON)
 
 	insertSQL := `
 		INSERT INTO uploads 
