@@ -14,9 +14,8 @@ func FileLookup(fileUUID string) (*types.UploadFile, error) {
 	table := config.UploadsTable
 
 	// Log the query to ensure it's being formatted correctly
-	log.Printf("SELECT id, ip, file_uuid, file_name, file_path, file_size, uploaded_at, last_download_at, uploader_id FROM %s WHERE file_uuid = ?\n", table)
 	query := fmt.Sprintf(`
-		SELECT ip, file_uuid, file_name, file_path, file_size, uploaded_at, last_download_at, uploader_id
+		SELECT id, ip, file_uuid, file_name, file_path, file_size, uploaded_at, last_download_at, uploader_id
 		FROM %s
 		WHERE file_uuid = ?`, table)
 
@@ -25,7 +24,7 @@ func FileLookup(fileUUID string) (*types.UploadFile, error) {
 	// Pass the fileUUID as a parameter to the query (avoiding SQL injection risks)
 	row := conn.QueryRow(query, fileUUID)
 	err := row.Scan(
-		// &uploadFile.ID,
+		&uploadFile.ID,
 		&uploadFile.IP,
 		&uploadFile.FileUUID,
 		&uploadFile.FileName,
@@ -46,7 +45,7 @@ func FileLookup(fileUUID string) (*types.UploadFile, error) {
 	}
 
 	// Log the successfully fetched file data
-	log.Printf("Fetched file: %+v", uploadFile)
+	// log.Printf("Fetched file: %+v", uploadFile)
 
 	return &uploadFile, nil
 }

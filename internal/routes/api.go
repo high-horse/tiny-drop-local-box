@@ -16,5 +16,6 @@ func ApiRoutes(r chi.Router) {
 
 	r.Get("/download", handlers.HandleDownloadStream)
 	r.Get("/file-info", handlers.HandleFileInfo)
+	r.Get("/delete", handlers.DeleteHandler)
 
 }

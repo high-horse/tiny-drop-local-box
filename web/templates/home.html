@@ -265,6 +265,7 @@
                             $("#fileName").text("No file selected");
                             progressBar.val(0);
                             uploadButton.prop('disabled', false);
+                            window.location.reload();
                         }
                     },
                     error: function (xhr, status, error) {
@@ -341,8 +342,8 @@
             if (!confirm("Are you sure you want to delete this file?")) return;
 
             $.ajax({
-                url: "/delete/" + uuid,
-                type: "DELETE",
+                url: "/delete?fileUUID=" + uuid,
+                type: "GET",
                 success: function () {
                     showToast("File deleted!", "is-danger");
                     location.reload();
@@ -552,13 +553,13 @@
     }
 
     /* Prevent the modal from closing when clicking the background */
-#uploadModal .modal-background {
-    pointer-events: none; /* Disable pointer events on the background */
-}
+    #uploadModal .modal-background {
+        pointer-events: none; /* Disable pointer events on the background */
+    }
 
-/* Ensure the modal's close button still works */
-#uploadModal .delete {
-    pointer-events: all; /* Allow clicking on the close button */
-}
+    /* Ensure the modal's close button still works */
+    #uploadModal .delete {
+        pointer-events: all; /* Allow clicking on the close button */
+    }
 
 </style>
