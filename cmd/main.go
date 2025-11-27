@@ -20,7 +20,7 @@ func init() {
 
 func main() {
 	db.InitDb(config.DBPath)
-	port := ":9090"
+	port := config.Port
 	log.Printf("Templates loaded.")
 		
 	r := chi.NewRouter()

@@ -11,4 +11,5 @@ const (
 
 	CleanupTime = 10 * time.Minute
 	UploadsTable = "uploads"
+	Port = ":9090"
 )
