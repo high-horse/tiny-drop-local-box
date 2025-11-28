@@ -71,9 +71,9 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		// http.Error(w, "Invalid total size", http.StatusBadRequest)
 	}
 
-	freeDiskSpace := utils.CheckDiskSpace(uint64(totalSize))
-	log.Println("sisksopave ", freeDiskSpace)
-	if chunkIndex == 0 && !freeDiskSpace {
+	isAvailableFreeDiskSpace := utils.CheckDiskSpace(uint64(totalSize))
+	log.Println("sisksopave ", isAvailableFreeDiskSpace)
+	if chunkIndex == 0 && !isAvailableFreeDiskSpace {
 		utils.SendError(w, http.StatusInsufficientStorage, "Server Space full, please try again later", nil)
 		return
 		// http.Error(w, "Server Space full, please try again later", http.StatusInternalServerError)

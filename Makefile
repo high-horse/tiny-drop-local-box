@@ -8,5 +8,8 @@ goose-up:
 generate:
 	sqlc-generate
 
+
 build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o myapp .
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/tinydrop ./cmd
+
+

@@ -15,6 +15,11 @@ func GetUserIp(r *http.Request) string {
 	if ip == "" {
 		ip = r.Header.Get("X-Real-IP")
 	} 
+
+	if ip == "" {
+        ip = r.RemoteAddr
+    }
+
 	if ip == "" {
 		ip, _, err = net.SplitHostPort(ip)
 		if err != nil {
@@ -32,7 +37,9 @@ func CheckDiskSpace(fileSize uint64) bool {
 
 	log.Println(minFreeSpace)
 	statfs := syscall.Statfs_t{}
-	err := syscall.Statfs("./storage", &statfs)
+	// err := syscall.Statfs("./storage", &statfs)
+
+	err := syscall.Statfs(config.FinalDir, &statfs)
 	if err != nil {
 		log.Println("Error checking disk space:", err)
 		return false

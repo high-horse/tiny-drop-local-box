@@ -9,7 +9,7 @@ import (
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	ip := query.Get("name")
+	ip := query.Get("ip")
 	if ip == "" {
 		ip = utils.GetUserIp(r)
 	}
@@ -24,8 +24,8 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]any {
-		"Title" : "Home Page",
-		"Desc" : "Home Page Description",
+		"Title" : "Tiny Drop – Fast & Easy File Sharing on Local & Public Networks",
+		"Desc" : "Tiny Drop makes sharing files simple, secure, and lightning-fast. Instantly send and receive files across local networks or over the internet without hassle. Perfect for personal, team, or public use.",
 		"Data" : files,
 		"Success": true,
 		"Ip" : ip,
