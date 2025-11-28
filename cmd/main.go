@@ -7,6 +7,7 @@ import (
 	"tiny-drop/internal/config"
 	"tiny-drop/internal/db"
 	"tiny-drop/internal/routes"
+	"tiny-drop/internal/views"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -21,6 +22,7 @@ func init() {
 func main() {
 	db.InitDb(config.DBPath)
 	port := config.Port
+	views.InitTemplates()
 	log.Printf("Templates loaded.")
 		
 	r := chi.NewRouter()

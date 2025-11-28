@@ -49,6 +49,19 @@ func CreateTable() {
 		log.Fatalf("Failed to create WAL mode :%v", err)
 	}
 
+	 // Optimize SQLite performance
+    if _, err := db.Exec("PRAGMA synchronous = NORMAL;"); err != nil {
+        log.Printf("Warning: Failed to set synchronous mode: %v", err)
+    }
+    
+    if _, err := db.Exec("PRAGMA cache_size = -64000;"); err != nil { // 64MB cache
+        log.Printf("Warning: Failed to set cache size: %v", err)
+    }
+    
+    if _, err := db.Exec("PRAGMA temp_store = MEMORY;"); err != nil {
+        log.Printf("Warning: Failed to set temp_store: %v", err)
+    }
+
 	createTableSql := `
 	CREATE TABLE IF NOT EXISTS uploads (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
