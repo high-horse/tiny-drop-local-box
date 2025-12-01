@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>{{ .Title }}</title>
+        <meta name="description" content="Tiny Drop makes sharing files simple, secure, and lightning-fast. Instantly send and receive files across local networks or over the internet without hassle. Perfect for personal, team, or public use.">
+
+
+        <link rel="icon" type="image/x-icon" href="/static/favicons/favicon-removebg-preview.png">
+        <!-- Include Bulma CSS from CDN -->
+
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+        >
+
+        <!-- Optional: your custom styles -->
+        <link rel="stylesheet" href="/static/css/app.css">
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    </head>
+    <body>
+        <!--class="section"-->
+        <header >
+            <div >
+                <!--class="container"-->
+                <!--<h1 class="title">My Go Website</h1>-->
+                <nav class="navbar" role="navigation" aria-label="main navigation">
+                  <div class="navbar-brand">
+                    <!-- Logo on the left -->
+                    <a class="navbar-item" href="/">
+                      <!-- Replace with your logo image or text -->
+                      <strong>MyLogo</strong>
+                    </a>
+                
+                    <!-- This burger is for mobile toggle -->
+                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
+                      <span aria-hidden="true"></span>
+                      <span aria-hidden="true"></span>
+                      <span aria-hidden="true"></span>
+                    </a>
+                  </div>
+                
+                  <div id="navbarBasic" class="navbar-menu">
+                    <div class="navbar-start">
+                      <!-- You can add items here if needed -->
+                    </div>
+                
+                    <div class="navbar-end">
+                      <a class="navbar-item" href="/">Home</a>
+                      <!-- <a class="navbar-item" href="/about">About</a> -->
+                      <!-- <a class="navbar-item" href="/contact">Contact</a> -->
+                    </div>
+                  </div>
+                </nav>
+
+            </div>
+        </header>
+
+        <main class="section">
+            <!--class="container"-->
+            <div >{{ template "body" . }}</div>
+        </main>
+
+        <footer class="footer">
+            <div class="content has-text-centered">
+                <p>&copy; 2025 My Go Website</p>
+            </div>
+        </footer>
+    </body>
+</html>

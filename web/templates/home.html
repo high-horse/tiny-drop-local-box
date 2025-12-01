@@ -1,237 +1,198 @@
-<!-- {{/* home.html */}} -->
 {{define "body"}}
-<div style="padding: 0; margin: 0;">
-    <!-- Upload button triggers modal -->
-    <div style="display: flex; justify-content: space-between;">
-
+<div class="mb-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <button class="button is-primary" id="uploadBtn">Upload File</button>
+            <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p class="text-gray-600">Manage and share your local files</p>
         </div>
-        <div>
-            <span>Your Ip is {{.Ip}}</span>
-        </div>
-    </div>
-
-    
-</div>
-
-<!-- Bulma modal for file upload -->
-<div class="modal" id="uploadModal">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-        <header class="modal-card-head">
-            <p class="modal-card-title">Upload your file</p>
-            <button class="delete" aria-label="close" id="closeModal"></button>
-        </header>
-        <section class="modal-card-body">
-            <form id="uploadForm" method="post" enctype="multipart/form-data" action="/upload">
-                <div class="file has-name is-boxed is-fullwidth" id="dropZone">
-                    <label class="file-label">
-                        <input class="file-input" type="file" name="uploadfile" id="fileInput" required />
-                        <span class="file-cta">
-                            <span class="file-icon">
-                                <i class="fas fa-upload"></i>
-                            </span>
-                            <span class="file-label">Choose a file… or drag it here</span>
-                        </span>
-                        <span class="file-name" id="fileName">No file selected</span>
-                    </label>
-                </div>
-                <br />
-                <button type="submit" class="button is-success is-fullwidth">
-                    Upload
-                </button>
-            </form>
-            <progress id="uploadProgress" class="progress is-primary" value="0" max="100"
-                style="width: 100%; margin-top: 10px"></progress>
-        </section>
-    </div>
-</div>
-
-<section class="section">
-    <div class="container">
-        <h1 class="title">Uploaded Files</h1>
-        <div class="columns is-multiline">
-            {{if .Data}}
-            {{range .Data}}
-            <div class="column is-3">
-                <div class="card has-hover" data-uploader="{{.UploaderId}}" data-uuid="{{.FileUUID}}">
-                    <div class="card-content">
-                        <p class="title is-6">{{.Metadata.FileName}}</p>
-                        <p class="subtitle is-7">
-
-                            <span class="icon-text">
-                                <span class="icon">
-                                    <i class="fas fa-hdd"></i> <!-- File Size Icon -->
-                                </span>
-                                <span>SIze: <strong>{{.FileSize}}</strong></span>
-                            </span>
-
-                            <span class="icon-text">
-                                <span class="icon">
-                                    <i class="fas fa-upload"></i> <!-- Upload Icon -->
-                                </span>
-                                <span>Uploaded At : <strong>{{.UploadedAt.Format "2006-01-02 15:04:05"}}</strong></span>
-                            </span>
-                            <span class="icon-text">
-                                <span class="icon">
-                                    <i class="fas fa-download"></i> <!-- Download Icon -->
-                                </span>
-                                <span>Last Download at: <strong>{{.LastDownloadAt.Format "2006-01-02 15:04:05"}}</strong></span>
-                            </span>
-                            <span class="icon-text">
-                                <span class="icon">
-                                    <i class="fas fa-trash-alt"></i> <!-- Trash Icon -->
-                                </span>
-                                <span>Delete at: <strong>{{.WillDeleteAt.Format "2006-01-02 15:04:05"}}</strong></span>
-                            </span>
-                        </p>
-                    </div>
-                    <footer class="card-footer">
-                        <!-- <a href="/download/{{.FileUUID}}" class="card-footer-item">
-                            <span class="icon"><i class="fas fa-arrow-circle-down"></i></span> Download
-                        </a> -->
-                        <a href="javascript:void(0)" class="card-footer-item" onclick="downloadFileHandler('{{.FileUUID}}', '{{.FileName}}')">
-                            <span class="icon"><i class="fas fa-arrow-circle-down"></i></span> Download
-                        </a>
-                        <span class="card-footer-item delete-container"></span>
-                    </footer>
-                </div>
-            </div>
-            {{end}}
-            {{else}}
-            <p>No files uploaded yet.</p>
-            {{end}}
-        </div>
-    </div>
-</section>
-
-<!-- Download progress  -->
-<div class="modal" id="downloadModal">
-    <div class="modal-background"></div>
-    <div class="modal-card">
-        <header class="modal-card-head">
-            <p class="modal-card-title">Downloading File</p>
-            <!-- <button class="delete" aria-label="close" id="closeDownloadModal"></button> -->
-        </header>
-        <section class="modal-card-body">
-            <div class="content">
-                <p id="downloadFileName">File Name: <strong></strong></p>
-                <progress id="downloadProgress" class="progress is-primary" value="0" max="100" style="width: 100%;"></progress>
-                <p id="downloadStatus">Downloading...</p>
-            </div>
-        </section>
-    </div>
-</div>
-
-<!-- Modal Structure -->
-<div id="confirmModal" class="modal" style="display: none;">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-        <p id="confirmMessage">Are you sure?</p>
-        <div class="modal-actions">
-        <button id="confirmOkBtn" class="modal-btn ok-btn">OK</button>
-        <button id="confirmCancelBtn" class="modal-btn cancel-btn">Cancel</button>
+        <div
+            class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-medium">
+            <i class="fas fa-wifi"></i>
+            <span>IP: {{.Ip}}</span>
         </div>
     </div>
 </div>
 
-
-<!-- <div class="section">
-    <h2>Contact</h2>
-    <b>Title = {{.Title}}</b>
-    <p>Desc: <strong>{{ .Desc }}</strong></p>
+<!-- Upload Zone -->
+<!-- <div id="uploadBtn"
+    class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-white hover:border-primary/50 hover:bg-primary/5 transition cursor-pointer mb-10">
+    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-cloud-upload-alt text-primary text-2xl"></i>
+    </div>
+    <h3 class="text-lg font-semibold text-gray-800 mb-1">Upload Files</h3>
+    <p class="text-gray-500">Click here or drag & drop files anywhere</p>
 </div> -->
 
-<!-- Modal and drag-and-drop script -->
+<button id="uploadBtn" class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg 
+           hover:bg-primary/90 transition shadow-sm active:scale-95">
+    <i class="fas fa-cloud-upload-alt"></i>
+    Upload Files
+</button>
+
+
+
+<!-- Files Grid -->
+<h2 class="text-xl font-bold text-gray-800 mb-4">
+    {{if .Data}}Shared Files{{else}}No Files Yet{{end}}
+</h2>
+
+{{if .Data}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    {{range .Data}}
+    <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition group" data-uploader="{{.UploaderId}}"
+        data-uuid="{{.FileUUID}}">
+        <div class="p-4">
+            <div class="flex justify-center mb-4">
+                <div class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-file-alt text-2xl"></i>
+                </div>
+            </div>
+
+            <h3 class="font-medium text-gray-800 truncate mb-1" title="{{.Metadata.FileName}}">
+                {{.Metadata.FileName}}
+            </h3>
+            <div class="text-sm text-gray-500 space-y-0.5">
+                <div><i class="fas fa-hdd text-xs mr-1"></i> {{.FileSize}}</div>
+                <div><i class="far fa-clock text-xs mr-1"></i> {{.UploadedAt.Format "Jan 02"}}</div>
+            </div>
+        </div>
+
+        <div class="border-t px-4 py-3 flex gap-2">
+            <button onclick="downloadFileHandler('{{.FileUUID}}', '{{.Metadata.FileName}}')"
+                class="flex-1 flex items-center justify-center gap-1.5 text-sm font-medium bg-primary text-white rounded px-3 py-2 hover:bg-blue-600 transition">
+                <i class="fas fa-download"></i> Download
+            </button>
+            <div class="delete-placeholder"></div>
+        </div>
+    </div>
+    {{end}}
+</div>
+{{else}}
+<div class="text-center py-12 bg-white rounded-xl border">
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+        <i class="fas fa-wind text-2xl"></i>
+    </div>
+    <p class="text-gray-500">No files shared on this network yet.</p>
+</div>
+{{end}}
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50" id="closeModalBg"></div>
+    <div class="relative max-w-lg w-full mx-auto mt-20 bg-white rounded-xl shadow-lg">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Upload File</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="uploadForm">
+                <label
+                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer transition"
+                    id="dropZone">
+                    <div class="text-center">
+                        <i class="fas fa-cloud-upload-alt text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-sm text-gray-600"><span class="font-medium">Click to upload</span> or drag & drop
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">Any file up to 2GB</p>
+                    </div>
+                    <input type="file" id="fileInput" name="uploadfile" class="hidden" required />
+                </label>
+                <p class="text-sm text-gray-600 mt-2 text-center" id="fileName">No file selected</p>
+
+                <button type="submit"
+                    class="w-full mt-4 bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-blue-600 transition">
+                    Start Upload
+                </button>
+
+                <progress id="uploadProgress" value="0" max="100" class="w-full h-2 mt-4 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full"></div>
+                </progress>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Download Modal -->
+<div id="downloadModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="relative max-w-md w-full mx-auto mt-20 bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Downloading...</h3>
+        <p class="text-gray-700 mb-1">File: <span id="downloadFileName" class="font-medium">—</span></p>
+        <progress id="downloadProgress" value="0" max="100" class="w-full h-2 mt-2 rounded-full overflow-hidden">
+            <div class="h-full bg-primary rounded-full"></div>
+        </progress>
+        <p class="text-sm text-gray-500 mt-2" id="downloadStatus">Connecting...</p>
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
         const currentUser = getFingerPrint();
 
+        // DOM elements
         const $uploadBtn = $("#uploadBtn");
         const $uploadModal = $("#uploadModal");
-        const $closeModal = $("#closeModal");
+        const $closeModal = $("#closeModal, #closeModalBg");
         const $fileInput = $("#fileInput");
         const $fileName = $("#fileName");
         const $dropZone = $("#dropZone");
         const $uploadForm = $("#uploadForm");
 
-        // Open modal
-        $uploadBtn.click(() => {
-            $uploadModal.addClass("is-active");
-        });
+        // === Modals ===
+        $uploadBtn.on("click", () => $uploadModal.removeClass("hidden"));
+        $closeModal.on("click", () => $uploadModal.addClass("hidden"));
 
-        // Close modal
-        $closeModal.click(() => {
-            $uploadModal.removeClass("is-active");
-            resetFileInput();
-        });
-        $uploadModal.find(".modal-background").click(() => {
-            $uploadModal.removeClass("is-active");
-            resetFileInput();
-        });
-
-        // File input change update file name
+        // === File preview ===
         $fileInput.on("change", () => {
-            if ($fileInput[0].files.length > 0) {
-                $fileName.text($fileInput[0].files[0].name);
-            } else {
-                $fileName.text("No file selected");
+            const file = $fileInput[0].files[0];
+            $fileName.text(file ? file.name : "No file selected");
+        });
+
+        // === Drag & Drop ===
+        $dropZone.on("dragenter dragover", e => {
+            e.preventDefault(); e.stopPropagation();
+            $dropZone.addClass("bg-primary/5 border-primary");
+        });
+        $dropZone.on("dragleave drop", e => {
+            e.preventDefault(); e.stopPropagation();
+            $dropZone.removeClass("bg-primary/5 border-primary");
+        });
+        $dropZone.on("drop", e => {
+            const file = e.originalEvent.dataTransfer.files[0];
+            if (file) {
+                $fileInput[0].files = e.originalEvent.dataTransfer.files;
+                $fileName.text(file.name);
             }
         });
 
-        // Drag & Drop handlers (same as before, using jQuery event handlers)
-        $dropZone.on("dragenter dragover dragleave drop", function (e) {
+        // === Upload logic (unchanged core) ===
+        $uploadForm.on("submit", function (e) {
             e.preventDefault();
-            e.stopPropagation();
-        });
-
-        $dropZone.on("dragover", function () {
-            $dropZone.addClass("is-hovered");
-        });
-
-        $dropZone.on("dragleave drop", function () {
-            $dropZone.removeClass("is-hovered");
-        });
-
-        $dropZone.on("drop", function (e) {
-            const files = e.originalEvent.dataTransfer.files;
-            if (files.length > 0) {
-                $fileInput[0].files = files;
-                $fileName.text(files[0].name);
-            }
-        });
-
-        $("#uploadForm").on("submit", function (e) {
-            e.preventDefault();
-
-            const file = $("#fileInput")[0].files[0];
+            const file = $fileInput[0].files[0];
             if (!file) return alert("No file selected");
 
-            console.log("Size in MB:", (file.size / 1_000_000).toFixed(2));
-            // return;
-
             const totalSize = file.size;
-            const chunkSize = 10 * 1024 * 1024; // 2MB per chunk
-            const totalChunks = Math.ceil(file.size / chunkSize);
+            const chunkSize = 10 * 1024 * 1024;
+            const totalChunks = Math.ceil(totalSize / chunkSize);
             let currentChunk = 0;
-            const maxRetries = 3;
             let retryCount = 0;
-
+            const maxRetries = 3;
             const progressBar = $("#uploadProgress");
-            const uploadButton = $(this).find('button[type="submit"]');
+            const uploadButton = $uploadForm.find('button[type="submit"]');
             const uploadId = generateUUID();
 
-            progressBar.val(0); // reset
-            uploadButton.prop('disabled', true);
+            progressBar.val(0);
+            uploadButton.prop("disabled", true);
 
             function uploadNextChunk() {
                 const start = currentChunk * chunkSize;
-                const end = Math.min(file.size, start + chunkSize);
+                const end = Math.min(start + chunkSize, totalSize);
                 const blob = file.slice(start, end);
-
                 const formData = new FormData();
-                formData.append('uploadId', uploadId);
+                formData.append("uploadId", uploadId);
                 formData.append("file", blob);
                 formData.append("fileName", file.name);
                 formData.append("chunkIndex", currentChunk);
@@ -239,330 +200,189 @@
                 formData.append("totalSize", totalSize);
                 formData.append("uploaderId", currentUser);
 
-
                 $.ajax({
                     url: "/upload",
                     type: "POST",
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function (response) {
+                    success: () => {
                         retryCount = 0;
                         currentChunk++;
-                        const progress = Math.round(
-                            (currentChunk / totalChunks) * 100,
-                        );
-                        progressBar.val(progress);
-
+                        progressBar.val(Math.round((currentChunk / totalChunks) * 100));
                         if (currentChunk < totalChunks) {
                             uploadNextChunk();
                         } else {
-                            showToast(
-                                "File uploaded successfully!",
-                                "is-success",
-                            );
-                            $("#uploadModal").removeClass("is-active");
-                            $("#fileInput").val("");
-                            $("#fileName").text("No file selected");
-                            progressBar.val(0);
-                            uploadButton.prop('disabled', false);
-                            window.location.reload();
+                            showToast("✅ File uploaded!", "green");
+                            $uploadModal.addClass("hidden");
+                            location.reload();
                         }
                     },
-                    error: function (xhr, status, error) {
-                        if (xhr.status == 507) { // check the HTTP status code
-                            showToast(error || "Insuffecient Storage", "is-danger",)
-                            // alert("Upload failed: server storage insufficient (507)");
-                            uploadButton.prop('disabled', false);
-                            progressBar.val(0);
-                            return; // EARLY EXIT, stop retrying
+                    error: (xhr) => {
+                        uploadButton.prop("disabled", false);
+                        if (xhr.status === 507) {
+                            showToast("❌ Insufficient storage", "red");
+                            return;
                         }
-                        if (retryCount < maxRetries) {
-                            retryCount++;
-                            console.log(
-                                `Retrying chunk ${currentChunk}, attempt ${retryCount}`,
-                            );
+                        if (retryCount++ < maxRetries) {
                             setTimeout(uploadNextChunk, 1000);
                         } else {
-                            showToast(
-                                "Upload failed after retries: " + error,
-                                "is-danger",
-                            );
-                            uploadButton.prop('disabled', false);
+                            showToast("❌ Upload failed", "red");
                         }
-                    },
+                    }
                 });
             }
-
             uploadNextChunk();
         });
 
-        function resetFileInput() {
-            $fileInput.val("");
-            $fileName.text("No file selected");
+        // === Inject Delete Buttons ===
+        $(".group").each(function () {
+            const uploaderId = $(this).data("uploader");
+            const uuid = $(this).data("uuid");
+            if (uploaderId === currentUser) {
+                const btn = $(`
+        <button data-uuid="${uuid}" class="delete-file flex-1 flex items-center justify-center gap-1.5 text-sm font-medium bg-red-500 text-white rounded px-3 py-2 hover:bg-red-600 transition">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      `);
+                $(this).find(".delete-placeholder").replaceWith(btn);
+            }
+        });
+
+        // === Delete handler ===
+        $(document).on("click", ".delete-file", function () {
+            const uuid = $(this).data("uuid");
+            if (!confirm("⚠️ Are you sure you want to delete this file?")) return;
+
+            $.ajax({
+                url: "/delete?fileUUID=" + encodeURIComponent(uuid),
+                type: "GET",
+                success: () => {
+                    showToast("🗑️ Deleted", "red");
+                    location.reload();
+                },
+                error: () => showToast("Failed to delete", "yellow")
+            });
+        });
+
+        // === Utils ===
+        function showToast(message, color = "blue") {
+            const colors = {
+                blue: "bg-blue-500",
+                green: "bg-green-500",
+                red: "bg-red-500",
+                yellow: "bg-yellow-500"
+            };
+            const toast = $(`
+      <div class="fixed top-4 right-4 px-4 py-2 rounded-lg text-white font-medium shadow-lg ${colors[color] || colors.blue} z-50 animate-fade-in">
+        ${message}
+      </div>
+    `).appendTo("body");
+            setTimeout(() => toast.addClass("animate-fade-out").on("animationend", () => toast.remove()), 2500);
         }
 
         function generateUUID() {
-            // Simple UUIDv4 generator
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
                 const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
             });
         }
-
 
         function getFingerPrint() {
-            let userUuid = localStorage.getItem("user_uuid");
-            if (!userUuid) {
-                userUuid = generateUUID();
-                localStorage.setItem("user_uuid", userUuid);
-            }
-
-            return userUuid;
+            let uuid = localStorage.getItem("user_uuid");
+            return uuid || (() => {
+                uuid = generateUUID();
+                localStorage.setItem("user_uuid", uuid);
+                return uuid;
+            })();
         }
-
-        $(".card").each(function () {
-            const uploaderId = $(this).data("uploader");
-            const fileUuid = $(this).data("uuid");
-
-            if (uploaderId === currentUser) {
-                const deleteBtn = $(`
-                <a class="card-footer-item has-text-danger delete-file" data-uuid="${fileUuid}">
-                    <span class="icon"><i class="fas fa-trash"></i></span> Delete
-                </a>
-            `);
-
-                $(this).find(".delete-container").append(deleteBtn);
-            }
-        });
-
-        // Handle delete click
-        $(document).on("click", ".delete-file", function () {
-            const uuid = $(this).data("uuid");
-            if (!confirm("Are you sure you want to delete this file?")) return;
-
-            $.ajax({
-                url: "/delete?fileUUID=" + uuid,
-                type: "GET",
-                success: function () {
-                    showToast("File deleted!", "is-danger");
-                    location.reload();
-                },
-                error: function () {
-                    showToast("Failed to delete!", "is-warning");
-                }
-            });
-        });
-
     });
 
-    function showToast(message, type = "is-success") {
-        const toast = $(`
-            <div class="notification ${type}" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
-                ${message}
-                <button class="delete"></button>
-            </div>
-        `);
-        $("body").append(toast);
-        toast.find(".delete").on("click", () => toast.remove());
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    function showConfirmationDialog(message) {
-        return window.confirm(message);
-    }
+    // Download logic (same as before)
     async function downloadFileHandler(fileUUID, filename = "") {
-        const result = showConfirmationDialog(`Are you sure you want to Download this file "${filename}"?`);
-        if (result) {
-            await downloadFile(fileUUID);
-        } else {
-            console.log("File not deleted");
-        }
+        if (confirm(`📥 Download "${filename}"?`)) await downloadFile(fileUUID);
     }
 
     async function downloadFile(fileUUID) {
         try {
-            // Get the file's total size (you should add an endpoint to retrieve this info)
-            const fileInfoResponse = await fetch(`/file-info?fileUUID=${fileUUID}`);
-            if (!fileInfoResponse.ok) {
-                throw new Error('Unable to fetch file info');
-            }
-            const parsed = await fileInfoResponse.json();
-            const fileInfo = parsed.data;
-            const fileSize = fileInfo.file_size; // Total size of the file in bytes
+            const res = await fetch(`/file-info?fileUUID=${encodeURIComponent(fileUUID)}`);
+            if (!res.ok) throw new Error("File info not found");
+            const { data: fileInfo } = await res.json();
+            const size = fileInfo.file_size;
 
-            // Setup the download progress modal
-            const $downloadModal = $("#downloadModal");
-            const $progressBar = $("#downloadProgress");
-            const $fileName = $("#downloadFileName strong");
-            const $downloadStatus = $("#downloadStatus");
-            const chunkSize = 10 * 1024 * 1024; // 10MB in bytes
-            const totalChunks = Math.ceil(fileSize / chunkSize); // Total number of chunks
+            const $modal = $("#downloadModal");
+            const $progress = $("#downloadProgress");
+            const $name = $("#downloadFileName");
+            const $status = $("#downloadStatus");
 
-            $fileName.text(fileInfo.metadata.file_name);
-            $downloadStatus.text("Downloading...");
-            $progressBar.val(0);
-            $downloadModal.addClass("is-active");
+            $name.text(fileInfo.metadata.file_name || "Unknown");
+            $status.text("Starting...");
+            $progress.val(0);
+            $modal.removeClass("hidden");
 
-            let currentChunk = 0;
-            const fileBlob = [];
+            const chunkSize = 10 * 1024 * 1024;
+            const chunks = Math.ceil(size / chunkSize);
+            const blobs = [];
 
-            // Download file in chunks
-            for (let i = 0; i < totalChunks; i++) {
-                const start = i * chunkSize;
-                const end = Math.min(start + chunkSize - 1, fileSize - 1); // Ensure end does not exceed file size
-                const rangeHeader = `bytes=${start}-${end}`;
-
-                const response = await fetch(`/download?fileUUID=${fileUUID}`, {
-                    method: 'GET',
-                    headers: {
-                        'Range': rangeHeader,
-                    },
+            for (let i = 0; i < chunks; i++) {
+                const resp = await fetch(`/download?fileUUID=${encodeURIComponent(fileUUID)}`, {
+                    headers: { Range: `bytes=${i * chunkSize}-${Math.min((i + 1) * chunkSize - 1, size - 1)}` }
                 });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch chunk ${i + 1}`);
-                }
-
-                const chunkBlobData = await response.blob(); // Get the current chunk as a blob
-                fileBlob.push(chunkBlobData); // Add the chunk to the fileBlob array
-
-                // Update the progress bar
-                currentChunk++;
-                const progress = Math.round((currentChunk / totalChunks) * 100);
-                $progressBar.val(progress);
+                if (!resp.ok) throw new Error(`Chunk ${i + 1} failed`);
+                blobs.push(await resp.blob());
+                $progress.val(Math.round(((i + 1) / chunks) * 100));
+                $status.text(`Downloading (${i + 1}/${chunks})...`);
             }
 
-            // Combine the blobs into a single blob (i.e., the complete file)
-            const completeFileBlob = new Blob(fileBlob);
-
-            // Create a download link for the complete file
-            const url = URL.createObjectURL(completeFileBlob);
-            const a = document.createElement('a');
+            const blob = new Blob(blobs);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
             a.href = url;
-            a.download = fileInfo.file_name;  // You can change this to a specific filename if needed
-            document.body.appendChild(a);
+            a.download = fileInfo.metadata.file_name || fileUUID;
             a.click();
-            document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            // Close the download modal after download
-            $downloadModal.removeClass("is-active");
-            showToast("File downloaded successfully!", "is-success");
+            $modal.addClass("hidden");
+            showToast("✅ Download complete!", "green");
 
-        } catch (error) {
-            console.error("Error downloading file:", error);
-            showToast("There was an error downloading the file.", "is-danger");
-            const $downloadModal = $("#downloadModal");
-            $downloadModal.removeClass("is-active");
+        } catch (err) {
+            console.error(err);
+            showToast(`❌ ${err.message || "Failed"}`, "red");
+            $("#downloadModal").addClass("hidden");
         }
     }
-
-    async function downloadFile_(fileUUID) {
-        try {
-            // Get the file's total size (you should add an endpoint to retrieve this info)
-            const fileInfoResponse = await fetch(`/file-info?fileUUID=${fileUUID}`);
-            if (!fileInfoResponse.ok) {
-                throw new Error('Unable to fetch file info');
-            }
-            const parsed = await fileInfoResponse.json();
-            const fileInfo = parsed.data;
-            console.log("fileingo is ", fileInfo);
-            // return
-            
-            const fileSize = fileInfo.file_size; // Total size of the file in bytes
-
-            const chunkSize = 10 * 1024 * 1024; // 10MB in bytes
-            const totalChunks = Math.ceil(fileSize / chunkSize); // Total number of chunks
-
-            // Create a blob array to accumulate the file data
-            let fileBlob = [];
-
-            for (let i = 0; i < totalChunks; i++) {
-                const start = i * chunkSize;
-                const end = Math.min(start + chunkSize - 1, fileSize - 1); // Ensure end does not exceed file size
-
-                const rangeHeader = `bytes=${start}-${end}`;
-
-                // Request the current chunk
-                const response = await fetch(`/download?fileUUID=${fileUUID}`, {
-                    method: 'GET',
-                    headers: {
-                        'Range': rangeHeader,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch chunk ${i + 1}`);
-                }
-
-                const chunkBlob = await response.blob(); // Get the current chunk as a blob
-                fileBlob.push(chunkBlob); // Add the chunk to the fileBlob array
-            }
-
-            // Combine the blobs into a single blob (i.e., the complete file)
-            const completeFileBlob = new Blob(fileBlob);
-
-            // Create a download link for the complete file
-            const url = URL.createObjectURL(completeFileBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileUUID;  // You can change this to a specific filename if needed
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-        } catch (error) {
-            console.error("Error downloading file:", error);
-            alert("There was an error downloading the file.");
-        }
-    }
-
 </script>
 
 <style>
-    /* Drag & drop highlight style */
-    .file.is-hovered {
-        border-color: #79a8ff;
-        background-color: #2a2d34;
-        box-shadow: 0 0 10px #79a8ff;
-        transition: all 0.3s ease;
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    #downloadModal {
-        z-index: 9999;
+    @keyframes fade-out {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
     }
 
-    .card{
-        max-width: 350px; /* Set max width (you can adjust this value as needed) */
-        max-height: 500px; /* Set max height (you can adjust this value as needed) */
-        overflow: hidden;
-    }
-    .card.has-hover:hover {
-        transform: translateY(-5px); /* Slightly lift the card */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
     }
 
-    /* Button (Download link) hover effect */
-    .card-footer-item.is-hoverable:hover {
-        background-color: #f5f5f5; /* Light background on hover */
-        color: #3273dc; /* Change text color on hover */
-        transform: scale(1.05); /* Slightly scale up on hover */
-        transition: transform 0.2s ease, background-color 0.2s ease;
+    .animate-fade-out {
+        animation: fade-out 0.3s ease-out forwards;
     }
-
-    /* Prevent the modal from closing when clicking the background */
-    #uploadModal .modal-background {
-        pointer-events: none; /* Disable pointer events on the background */
-    }
-
-    /* Ensure the modal's close button still works */
-    #uploadModal .delete {
-        pointer-events: all; /* Allow clicking on the close button */
-    }
-
 </style>
-
 {{end}}

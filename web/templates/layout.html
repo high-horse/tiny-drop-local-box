@@ -1,72 +1,88 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>{{ .Title }}</title>
-        <meta name="description" content="Tiny Drop makes sharing files simple, secure, and lightning-fast. Instantly send and receive files across local networks or over the internet without hassle. Perfect for personal, team, or public use.">
 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .Title }}</title>
+  <meta name="description" content="Tiny Drop makes sharing files simple.">
+  <link rel="icon" type="image/x-icon" href="/static/favicons/favicon-removebg-preview.png">
 
-        <link rel="icon" type="image/x-icon" href="/static/favicons/favicon-removebg-preview.png">
-        <!-- Include Bulma CSS from CDN -->
+  <!-- Tailwind CSS (v3.4+) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#64748b',
+          }
+        }
+      }
+    }
+  </script>
 
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
-        >
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-        <!-- Optional: your custom styles -->
-        <link rel="stylesheet" href="/static/css/app.css">
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Inter font (from KB) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
 
-    </head>
-    <body>
-        <!--class="section"-->
-        <header >
-            <div >
-                <!--class="container"-->
-                <!--<h1 class="title">My Go Website</h1>-->
-                <nav class="navbar" role="navigation" aria-label="main navigation">
-                  <div class="navbar-brand">
-                    <!-- Logo on the left -->
-                    <a class="navbar-item" href="/">
-                      <!-- Replace with your logo image or text -->
-                      <strong>MyLogo</strong>
-                    </a>
-                
-                    <!-- This burger is for mobile toggle -->
-                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
-                      <span aria-hidden="true"></span>
-                      <span aria-hidden="true"></span>
-                      <span aria-hidden="true"></span>
-                    </a>
-                  </div>
-                
-                  <div id="navbarBasic" class="navbar-menu">
-                    <div class="navbar-start">
-                      <!-- You can add items here if needed -->
-                    </div>
-                
-                    <div class="navbar-end">
-                      <a class="navbar-item" href="/">Home</a>
-                      <!-- <a class="navbar-item" href="/about">About</a> -->
-                      <!-- <a class="navbar-item" href="/contact">Contact</a> -->
-                    </div>
-                  </div>
-                </nav>
+<body class="bg-gray-50">
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r p-6 hidden md:block">
+      <div class="flex items-center gap-2 mb-10">
+        <i class="fas fa-bolt text-primary text-xl"></i>
+        <h1 class="text-xl font-bold text-gray-800">TinyDrop</h1>
+      </div>
 
-            </div>
-        </header>
+      <nav class="space-y-2">
+        <a href="/" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary font-medium">
+          <i class="fas fa-folder-open"></i>
+          My Network
+        </a>
+        <!-- <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+          <i class="fas fa-history"></i>
+          Recent
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100">
+          <i class="fas fa-cog"></i>
+          Settings
+        </a> -->
+      </nav>
 
-        <main class="section">
-            <!--class="container"-->
-            <div >{{ template "body" . }}</div>
-        </main>
+      <div class="mt-auto pt-6 border-t">
+        <p class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-2">Connect to Network</p>
+        <form class="flex gap-1" action="/" method="GET">
+          <input type="text" name="ip" placeholder="192.168.1.X"
+            class="w-28 text-sm px-3 py-1.5 border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent" />
 
-        <footer class="footer">
-            <div class="content has-text-centered">
-                <p>&copy; 2025 My Go Website</p>
-            </div>
-        </footer>
-    </body>
+          <button type="submit" class="bg-primary hover:bg-blue-600 text-white px-3 rounded-md">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-8">
+      {{ template "body" . }}
+    </main>
+  </div>
+
+  <!-- jQuery (needed for your JS) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</body>
+
 </html>

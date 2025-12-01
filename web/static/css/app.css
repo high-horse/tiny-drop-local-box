@@ -1,32 +1,242 @@
 :root {
-    --bulma-text: #e2e2e2;
-    --bulma-body-background-color: #1a1c21;      /* soft dark */
-    --bulma-link: #79a8ff;
-
-    --bulma-navbar-background-color: #20232a;    /* dark grey */
-    --bulma-navbar-item-color: #e2e2e2;
-
-    --bulma-footer-background-color: #20232a;    /* same as navbar */
-    --bulma-footer-color: #b5b5b5;
+    --bg-body: #0f172a;       /* Slate 900 */
+    --bg-panel: #1e293b;      /* Slate 800 */
+    --bg-card: #1e293b;
+    --text-main: #f1f5f9;     /* Slate 100 */
+    --text-muted: #94a3b8;    /* Slate 400 */
+    --primary: #3b82f6;       /* Blue 500 */
+    --primary-hover: #2563eb;
+    --border: #334155;        /* Slate 700 */
 }
 
-
-/* Make footer stick to bottom */
-html,
-body {
+html, body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
     height: 100%;
+    overflow-x: hidden;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-body {
+/* --- Layout Structure --- */
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background-color: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    position: fixed;
+    height: 100vh;
+    z-index: 10;
+    transition: transform 0.3s ease;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px; /* Width of sidebar */
+    padding: 2rem;
+    position: relative;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.is-active {
+        transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* --- Components --- */
+
+/* Brand */
+.brand-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Nav Links */
+.nav-menu a {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: all 0.2s;
+    margin-bottom: 0.5rem;
+}
+.nav-menu a:hover, .nav-menu a.is-active {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+}
+.nav-menu i {
+    width: 20px;
+    margin-right: 10px;
+}
+
+/* IP Input Box in Sidebar */
+.ip-connect-box {
+    margin-top: auto;
+    background: rgba(0,0,0,0.2);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+.ip-connect-box label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Header inside Main */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.current-ip-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* --- Hero Upload Zone (The "Big Button") --- */
+.hero-upload-zone {
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.01) 100%);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 3rem;
+}
+.hero-upload-zone:hover {
+    border-color: var(--primary);
+    background: rgba(59, 130, 246, 0.05);
+    transform: translateY(-2px);
+}
+.hero-upload-zone .icon {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+/* --- File Cards --- */
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.file-card {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
 }
-
-main {
-    flex: 1;
+.file-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary);
 }
 
-/* Slim footer */
-footer {
-    padding: 0 !important;
+.file-icon-preview {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    color: var(--text-muted);
+}
+/* If it's an image, we can show it, otherwise generic icon */
+.file-icon-preview img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.file-info .filename {
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.25rem;
+}
+.file-info .meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+.file-actions {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.btn-action {
+    padding: 0.5rem;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-download {
+    background: var(--primary);
+    color: white;
+}
+.btn-download:hover { background: var(--primary-hover); }
+.btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+.btn-delete:hover { background: rgba(239, 68, 68, 0.2); }
+
+/* Modal Override */
+.modal-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+}
+.modal-card-head, .modal-card-foot {
+    background: var(--bg-body);
+    border-color: var(--border);
+}
+.modal-card-title {
+    color: var(--text-main);
+}
+.modal-card-body {
+    background: var(--bg-panel);
 }
