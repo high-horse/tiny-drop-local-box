@@ -129,8 +129,36 @@
 </div>
 
 <script>
+    var eventSource
+    
     $(document).ready(function () {
         const currentUser = getFingerPrint();
+        startEvent();
+        function startEvent() {
+            let fingerprint = getFingerPrint()
+            eventSource = new EventSource(`/events?fingerprint=${fingerprint}`);
+
+            eventSource.onopen = () => {
+                console.log("SSE connection opened");
+            };
+
+            eventSource.onmessage = function (event) {
+                console.log("new event ", event.data);
+
+            }
+
+            eventSource.onerror = function (error) {
+                console.error("EventSource failed:", error);
+            }
+        }
+
+        function stopEvent() {
+            if (eventSource) {
+                eventSource.close();
+                console.log("SSE connection closed");
+            }
+        }
+
 
         // DOM elements
         const $uploadBtn = $("#uploadBtn");
@@ -241,10 +269,10 @@
             const uuid = $(this).data("uuid");
             if (uploaderId === currentUser) {
                 const btn = $(`
-        <button data-uuid="${uuid}" class="delete-file flex-1 flex items-center justify-center gap-1.5 text-sm font-medium bg-red-500 text-white rounded px-3 py-2 hover:bg-red-600 transition">
-          <i class="fas fa-trash"></i> Delete
-        </button>
-      `);
+                    <button data-uuid="${uuid}" class="delete-file flex-1 flex items-center justify-center gap-1.5 text-sm font-medium bg-red-500 text-white rounded px-3 py-2 hover:bg-red-600 transition">
+                    <i class="fas fa-trash"></i> Delete
+                    </button>
+                `);
                 $(this).find(".delete-placeholder").replaceWith(btn);
             }
         });
@@ -274,10 +302,10 @@
                 yellow: "bg-yellow-500"
             };
             const toast = $(`
-      <div class="fixed top-4 right-4 px-4 py-2 rounded-lg text-white font-medium shadow-lg ${colors[color] || colors.blue} z-50 animate-fade-in">
-        ${message}
-      </div>
-    `).appendTo("body");
+                <div class="fixed top-4 right-4 px-4 py-2 rounded-lg text-white font-medium shadow-lg ${colors[color] || colors.blue} z-50 animate-fade-in">
+                ${message}
+                </div>
+            `).appendTo("body");
             setTimeout(() => toast.addClass("animate-fade-out").on("animationend", () => toast.remove()), 2500);
         }
 

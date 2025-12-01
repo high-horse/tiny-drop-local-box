@@ -18,4 +18,6 @@ func ApiRoutes(r chi.Router) {
 	r.Get("/file-info", handlers.HandleFileInfo)
 	r.Get("/delete", handlers.DeleteHandler)
 
+	r.Get("/events", handlers.SSEHandler)
+
 }
