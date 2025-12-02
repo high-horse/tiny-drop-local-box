@@ -107,22 +107,11 @@
                     Start Upload
                 </button>
 
-                <div class="w-full bg-gray-200 rounded-full h-2 mt-4 overflow-hidden">
-                    <div id="uploadProgressFill" class="bg-primary h-2 rounded-full transition-all duration-75 ease-linear" style="width: 0%"></div>
-                </div>
-                <!-- <progress id="uploadProgress" value="0" max="100" class="w-full h-2 mt-4 rounded-full"></progress> -->
-                <!-- <progress id="uploadProgress" value="0" max="100" class="w-full h-2 mt-4 rounded-full overflow-hidden">
+                <progress id="uploadProgress" value="0" max="100" class="w-full h-2 mt-4 rounded-full overflow-hidden">
                     <div class="h-full bg-primary rounded-full"></div>
-                </progress> -->
+                </progress>
             </form>
         </div>
-    </div>
-</div>
-<!-- Upload Overlay -->
-<div id="uploadOverlay" class="fixed inset-0 z-60 hidden items-center justify-center bg-black/30">
-    <div class="text-center">
-        <div class="text-6xl md:text-8xl font-bold text-white/90 mb-4 animate-pulse">UPLOADING</div>
-        <div class="text-xl text-white/70">Please wait — do not close or refresh</div>
     </div>
 </div>
 
@@ -141,10 +130,10 @@
 
 <script>
     var eventSource
-
+    
     $(document).ready(function () {
         const currentUser = getFingerPrint();
-
+        
         // DOM elements
         const $uploadBtn = $("#uploadBtn");
         const $uploadModal = $("#uploadModal");
@@ -182,117 +171,71 @@
         });
 
         // === Upload logic (unchanged core) ===
-        $uploadForm.on("submit", async function (e) {
+        $uploadForm.on("submit", function (e) {
             e.preventDefault();
-
             const file = $fileInput[0].files[0];
             if (!file) return alert("No file selected");
 
-            const uploadId = generateUUID();
+            const totalSize = file.size;
+            const chunkSize = 10 * 1024 * 1024;
+            const totalChunks = Math.ceil(totalSize / chunkSize);
+            let currentChunk = 0;
+            let retryCount = 0;
+            const maxRetries = 3;
             const progressBar = $("#uploadProgress");
             const uploadButton = $uploadForm.find('button[type="submit"]');
-            const currentUser = getFingerPrint();
-            const $overlay = $("#uploadOverlay");
+            const uploadId = generateUUID();
 
             progressBar.val(0);
             uploadButton.prop("disabled", true);
-            $uploadModal.addClass("hidden"); 
-            $overlay.removeClass("hidden").addClass("upload-overlay-fade-in");
 
-            try {
-                const total = file.size;
-                let bytesUploaded = 0;
-                let lastPercent = 0;
+            function uploadNextChunk() {
+                const start = currentChunk * chunkSize;
+                const end = Math.min(start + chunkSize, totalSize);
+                const blob = file.slice(start, end);
+                const formData = new FormData();
+                formData.append("uploadId", uploadId);
+                formData.append("file", blob);
+                formData.append("fileName", file.name);
+                formData.append("chunkIndex", currentChunk);
+                formData.append("totalChunks", totalChunks);
+                formData.append("totalSize", totalSize);
+                formData.append("uploaderId", currentUser);
 
-                // Create a ReadableStream for streaming the file in chunks
-                const progressStream = new ReadableStream({
-                    async start(controller) {
-                        const reader = file.stream().getReader();
-
-                        // Non-recursive, microtask-yielding push
-                        // async function push() {
-                        //     try {
-                        //         const { done, value } = await reader.read();
-                        //         if (done) {
-                        //             controller.close();
-                        //             return;
-                        //         }
-
-                        //         bytesUploaded += value.byteLength;
-                        //         progressBar.val(Math.round((bytesUploaded / total) * 100));
-
-                        //         controller.enqueue(value);
-                        //         await push(); // Continue reading
-                        //     } catch (err) {
-                        //         controller.error(err);
-                        //     }
-                        // }
-                        function push() {
-                            reader.read().then(({ done, value }) => {
-                                if (done) {
-                                    controller.close();
-                                    return;
-                                }
-
-                                bytesUploaded += value.byteLength;
-                                const percent = Math.min(100, Math.round((bytesUploaded / total) * 100));
-
-                                // ✅ Throttle progress updates (every 1% or at 100%)
-                                if (percent !== lastPercent && (percent === 100 || percent > lastPercent)) {
-                                    // progressBar.val(percent);
-                                    $("#uploadProgressFill").css("width", percent + "%");
-                                    lastPercent = percent;
-                                }
-
-                                controller.enqueue(value);
-
-                                // ✅ Yield to event loop — allows repaint & prevents stack overflow
-                                queueMicrotask(push);
-                            }).catch(err => {
-                                controller.error(err);
-                            });
+                $.ajax({
+                    url: "/upload",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: () => {
+                        retryCount = 0;
+                        currentChunk++;
+                        progressBar.val(Math.round((currentChunk / totalChunks) * 100));
+                        if (currentChunk < totalChunks) {
+                            uploadNextChunk();
+                        } else {
+                            showToast("✅ File uploaded!", "green");
+                            $uploadModal.addClass("hidden");
+                            location.reload();
                         }
-
-
-                        await push();
+                    },
+                    error: (xhr) => {
+                        uploadButton.prop("disabled", false);
+                        if (xhr.status === 507) {
+                            showToast("❌ Insufficient storage", "red");
+                            return;
+                        }
+                        if (retryCount++ < maxRetries) {
+                            setTimeout(uploadNextChunk, 1000);
+                        } else {
+                            showToast("❌ Upload failed", "red");
+                        }
                     }
                 });
-
-                // Send the stream to the server
-                const response = await fetch("/upload-stream", {
-                    method: "POST",
-                    body: progressStream,
-                    duplex: "half", // required for streaming
-                    headers: {
-                        "X-Upload-ID": uploadId,
-                        "X-File-Name": file.name,
-                        "X-Uploader-ID": currentUser,
-                        "Content-Type": "application/octet-stream"
-                    }
-                });
-
-                if (!response.ok) throw new Error(`Upload failed: ${response.statusText}`);
-
-                showToast("✅ File uploaded!", "green");
-                $uploadModal.addClass("hidden");
-                location.reload();
-
-            } catch (err) {
-                console.error(err);
-                showToast(`❌ Upload failed: ${err.message}`, "red");
-
-            } finally {
-                uploadButton.prop("disabled", false);
-                $overlay.removeClass("upload-overlay-fade-in").addClass("upload-overlay-fade-out");
-                setTimeout(() => {
-                    $overlay.removeClass("upload-overlay-fade-out").addClass("hidden");
-                    uploadButton.prop("disabled", false);
-                }, 300);
             }
+            uploadNextChunk();
         });
-
-
-
 
         // === Inject Delete Buttons ===
         $(".group").each(function () {
@@ -359,62 +302,10 @@
 
     // Download logic (same as before)
     async function downloadFileHandler(fileUUID, filename = "") {
-        if (confirm(`📥 Download "${filename}"?`)) await downloadStream(fileUUID);
+        if (confirm(`📥 Download "${filename}"?`)) await downloadFile(fileUUID);
     }
 
-    
-
-    async function downloadStream(fileUUID) {
-        try {
-            const res = await fetch(`/download-stream?fileUUID=${encodeURIComponent(fileUUID)}`);
-            if (!res.ok) throw new Error("Failed to fetch file");
-
-            const contentDisposition = res.headers.get("Content-Disposition");
-            const fileName = contentDisposition?.match(/filename="(.+)"/)?.[1] || fileUUID;
-            const total = parseInt(res.headers.get("Content-Length"), 10);
-
-            const $progress = $("#downloadProgress");
-            const $status = $("#downloadStatus");
-            const $name = $("#downloadFileName");
-            const $modal = $("#downloadModal");
-
-            $modal.removeClass("hidden");
-            $progress.val(0);
-            $name.text(fileName);
-            $status.text("Starting...");
-
-            const reader = res.body.getReader();
-            const chunks = [];
-            let received = 0;
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                chunks.push(value);
-                received += value.length;
-                if (total) $progress.val(Math.round((received / total) * 100));
-                $status.text(`Downloading ${((received / 1024 / 1024).toFixed(2))} MB...`);
-            }
-
-            const blob = new Blob(chunks);
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(url);
-
-            $modal.addClass("hidden");
-            showToast("✅ Download complete!", "green");
-        } catch (err) {
-            console.error(err);
-            showToast(`❌ ${err.message}`, "red");
-            $("#downloadModal").addClass("hidden");
-        }
-    }
-
-    async function downloadFileNormal(fileUUID) {
+    async function downloadFile(fileUUID) {
         try {
             const res = await fetch(`/file-info?fileUUID=${encodeURIComponent(fileUUID)}`);
             if (!res.ok) throw new Error("File info not found");
@@ -494,23 +385,6 @@
 
     .animate-fade-out {
         animation: fade-out 0.3s ease-out forwards;
-    }
-</style>
-
-<style>
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
-    }
-    .upload-overlay-fade-in {
-        animation: fadeIn 0.3s ease-out forwards;
-    }
-    .upload-overlay-fade-out {
-        animation: fadeOut 0.3s ease-out forwards;
     }
 </style>
 {{end}}

@@ -4,3 +4,6 @@ storage/
 tmp/
 
 bin/
+
+server.crt
+server.key

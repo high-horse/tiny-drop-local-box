@@ -11,10 +11,14 @@ func ApiRoutes(r chi.Router) {
 	r.Get("/", handlers.HomeHandler)
 	r.Get("/about", handlers.AboutHandler)
 	r.Get("/contact", handlers.ContactHandler)
-	
-	r.Post("/upload", handlers.UploadHandler)
 
-	r.Get("/download", handlers.HandleDownloadStream)
+	r.Post("/upload", handlers.UploadHandler)
+	r.Post("/upload-stream", handlers.UploadStreamHandler)
+
+	r.Get("/download", handlers.HandleNormalDownload)
+	r.Get("/download-stream", handlers.HandleDownloadStream)
+
+	
 	r.Get("/file-info", handlers.HandleFileInfo)
 	r.Get("/delete", handlers.DeleteHandler)
 

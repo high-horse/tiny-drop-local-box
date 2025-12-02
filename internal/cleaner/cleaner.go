@@ -63,7 +63,7 @@ func CleanupFiles() {
 
 	log.Println("cleaning envoked")
 	// Fetch records of files older than 1 hour
-	rows, err := db.Query(`SELECT file_path FROM uploads WHERE last_download_at < ?`, time.Now().Add(-time.Hour))
+	rows, err := db.Query(`SELECT file_path FROM uploads WHERE last_download_at < ?`, time.Now().Add(-config.CleanupTime))
 	if err != nil {
 		log.Printf("Error fetching old files for cleanup: %v", err)
 		return

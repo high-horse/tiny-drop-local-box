@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	// "crypto/tls"
 	"net/http"
 	"tiny-drop/internal/cleaner"
 	"tiny-drop/internal/config"
@@ -32,12 +33,24 @@ func main() {
 	routes.ApiRoutes(r)
 	
 	
-	log.Printf("Server running at http://localhost%s\n", port)
-
 	go cleaner.StartCleanupTicker()
 	go cleaner.CleanupOldChunks()
 	
-	err := http.ListenAndServe(port, r)
+	// for server
+	// log.Printf("Server running at http://localhost%s\n", port)
+	// err := http.ListenAndServe(port, r)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// for local
+	srv := &http.Server{
+		Addr: port,
+		Handler: r,
+	}
+
+	log.Printf("Server running at https://localhost%s\n", port)
+	err := srv.ListenAndServeTLS("server.crt", "server.key")
 	if err != nil {
 		log.Fatal(err)
 	}
