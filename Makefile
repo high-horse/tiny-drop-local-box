@@ -10,6 +10,12 @@ generate:
 
 
 build:
-	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/tinydrop ./cmd
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/tinydrop_3 ./cmd
 
 
+build-static:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/tinydrop ./cmd
+
+
+clean-bin:
+	rm -f bin/tinydrop

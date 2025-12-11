@@ -6,7 +6,8 @@ import (
 	"log"
 	"sync"
 
-	_ "github.com/mattn/go-sqlite3"
+	// _ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 
@@ -19,7 +20,9 @@ var(
 func InitDb(dataSourceName string){
 	once.Do(func() {
 		var err error
-		db, err = sql.Open("sqlite3", dataSourceName)
+		// db, err = sql.Open("sqlite3", dataSourceName)
+		db, err = sql.Open("sqlite", dataSourceName)
+
 		if err != nil {
 			log.Fatalf("failed to initialize database: %v ", err)
 		}
@@ -45,6 +48,7 @@ func GetDB() *sql.DB {
 func CreateTable() {
 	db := GetDB()
 
+	// PRAGMAs (all valid for modernc.org/sqlite)
 	if _, err := db.Exec("PRAGMA journal_mode = WAL;"); err != nil {
 		log.Fatalf("Failed to create WAL mode :%v", err)
 	}
