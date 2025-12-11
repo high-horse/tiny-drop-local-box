@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	tempDir  = config.TempDir
+	tempDir = config.TempDir
 	// finalDir = config.FinalDir
 )
 
@@ -63,12 +63,12 @@ func CleanupFiles() {
 
 	log.Println("cleaning envoked")
 	// Fetch records of files older than 1 hour
-	rows, err := db.Query(`SELECT file_path FROM uploads WHERE last_download_at < ?`, time.Now().Add(-config.CleanupTime))
+	rows, err := db.Query(`SELECT file_path FROM uploads WHERE last_download_at < ?`, time.Now().Add(-config.DeleteAfterTIme))
 	if err != nil {
 		log.Printf("Error fetching old files for cleanup: %v", err)
 		return
 	}
-	defer rows.Close()	
+	defer rows.Close()
 
 	var filePath string
 	var filePathsToDelete []string

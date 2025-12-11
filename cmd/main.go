@@ -37,21 +37,21 @@ func main() {
 	go cleaner.CleanupOldChunks()
 	
 	// for server
-	// log.Printf("Server running at http://localhost%s\n", port)
-	// err := http.ListenAndServe(port, r)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// for local
-	srv := &http.Server{
-		Addr: port,
-		Handler: r,
-	}
-
-	log.Printf("Server running at https://localhost%s\n", port)
-	err := srv.ListenAndServeTLS("server.crt", "server.key")
+	log.Printf("Server running at http://localhost%s\n", port)
+	err := http.ListenAndServe(port, r)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// for local
+	// srv := &http.Server{
+	// 	Addr: port,
+	// 	Handler: r,
+	// }
+
+	// log.Printf("Server running at https://localhost%s\n", port)
+	// err := srv.ListenAndServeTLS("server.crt", "server.key")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 }
